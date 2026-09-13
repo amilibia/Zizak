@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zizak • Setas & Micología (Navarra y Guía Cesta y Setas)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    .card-chance-Alta { background-image: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 6px solid #10b981; }
+    .card-chance-Media { background-image: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #f59e0b; }
+    .card-chance-Baja { background-image: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%); border-left: 6px solid #ef4444; }
+    .loading-spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: #10b981; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .score-breakdown-details { animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px);} to { opacity: 1; transform: translateY(0);} }
+    .chip { display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .5rem; border-radius: 9999px; font-weight: 600; font-size: .75rem; }
+    #__langToggle { position: fixed; left: 14px; top: 14px; z-index: 9999; }
+    #__langToggle button { background: #065f46; color: #fff; border-radius: 9999px; padding: .4rem .8rem; font-weight: 700; font-size: .85rem; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: background 0.2s; }
+    #__langToggle button:hover { background: #047857; }
+    .modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,.5); }
+    .modal .content { position: relative; background: #fff; margin: 4vh auto; width: 95%; max-width: 960px; border-radius: 16px; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .close-x { position: absolute; right: 16px; top: 14px; font-size: 24px; color: #6b7280; cursor: pointer; font-weight: bold; }
+    .close-x:hover { color: #111827; }
+    .grid-field { display: grid; grid-template-columns: 1fr auto; gap: .5rem; align-items: center; }
+    .nav-tab { cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; }
+    .nav-tab.active { border-color: #059669; color: #065f46; font-weight: 800; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    #map { height: 520px; width: 100%; border-radius: 16px; z-index: 10; }
+  </style>
+</head>
+<body class="bg-green-50 min-h-screen text-gray-800 font-sans pb-12">
+
+  <!-- Botón Idioma Fijo -->
+  <div id="__langToggle">
+    <button id="__langBtn" type="button" class="flex items-center gap-1.5 shadow-md">
+      🌐 <span>Euskara</span>
+    </button>
+  </div>
+
+  <!-- Cabecera -->
+  <header class="text-center pt-8 pb-4 relative px-4">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-green-900 tracking-tight mb-2">
+      🍄 Zizak • Setas & Micología 🌲
+    </h1>
+    <p id="subtitle" class="text-base md:text-lg text-gray-700 max-w-2xl mx-auto font-medium" data-i18n="subtitle">
+      Predicción bioclimática, mapa territorial de Navarra y guía micológica ampliada (Cesta y Setas & Ultzama).
+    </p>
+
+    <!-- Botones rápidos de ayuda / exportación -->
+    <div class="absolute top-4 right-4 flex items-center gap-2">
+      <button id="export-import-btn" class="bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1">
+        💾 <span data-i18n="sync.btn">Copia / Sync</span>
+      </button>
+      <button id="help-button" class="text-gray-500 hover:text-green-700 text-2xl font-bold p-1" aria-label="Ayuda">ℹ️</button>
+    </div>
+  </header>
+
+  <!-- Barra de Navegación Principal (Tabs) -->
+  <nav class="max-w-6xl mx-auto mb-6 bg-white shadow-md rounded-xl p-2 flex flex-wrap justify-around items-center text-sm md:text-base font-semibold border border-green-100">
+    <button class="nav-tab active px-4 py-2.5 flex items-center gap-2" data-tab="forecast">
+      🌤️ <span data-i18n="nav.forecast">Predicción & Lugares</span>
+    </button>
+    <button class="nav-tab px-4 py-2.5 flex items-center gap-2" data-tab="map">
+      🗺️ <span data-i18n="nav.map">Mapa Territorial</span>
+    </button>
+    <button class="nav-tab px-4 py-2.5 flex items-center gap-2" data-tab="guide">
+      📖 <span data-i18n="nav.guide">Guía & Recetas</span>
+    </button>
+    <button class="nav-tab px-4 py-2.5 flex items-center gap-2" data-tab="journal">
+      📓 <span data-i18n="nav.journal">Cuaderno de Campo</span>
+    </button>
+    <button class="nav-tab px-4 py-2.5 flex items-center gap-2" data-tab="settings">
+      ⚙️ <span data-i18n="nav.settings">Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- Notificaciones -->
+  <div id="notification" class="max-w-6xl mx-auto mb-4 hidden p-4 rounded-xl text-sm shadow-sm font-medium"></div>
+
+  <!-- SECCIÓN 1: PREDICCIÓN & MIS LUGARES -->
+  <section id="section-forecast" class="tab-section active max-w-6xl mx-auto px-4">
+    <!-- Panel superior: Añadir lugar, Fase lunar, Parques Micológicos -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Buscador de lugar -->
+      <div class="bg-white shadow-lg rounded-2xl p-5 border border-green-100">
+        <h3 class="text-lg font-bold text-green-900 mb-3" data-i18n="add.title">Añadir nueva ubicación</h3>
+        <div id="add-location-form" class="space-y-3">
+          <div class="flex gap-2">
+            <input type="text" id="location-name" data-i18n-ph="add.placeholder" placeholder="Ej. Aralar, Selva Irati, Ultzama" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none" />
+            <button type="button" id="search-button" class="bg-green-700 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-green-800 transition text-sm whitespace-nowrap" data-i18n="add.search">Buscar</button>
+          </div>
+          
+          <details class="bg-green-50 rounded-lg p-3 border border-green-200 text-xs">
+            <summary class="font-bold text-green-900 cursor-pointer" data-i18n="add.habitatSummary">Hábitat y Suelo (MICOSYLVA)</summary>
+            <div class="mt-3 space-y-2">
+              <div>
+                <span class="text-gray-700 block font-semibold" data-i18n="add.habitatType">Tipo de hábitat</span>
+                <select id="habitat-select" class="mt-1 block w-full border rounded-md p-1.5 bg-white text-xs"></select>
+              </div>
+              <div>
+                <span class="text-gray-700 block font-semibold" data-i18n="add.canopy">Luminosidad del bosque</span>
+                <select id="canopy-select" class="mt-1 block w-full border rounded-md p-1.5 bg-white text-xs"></select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <span class="text-gray-700 block font-semibold" data-i18n="add.age">Edad arbolado</span>
+                  <select id="age-select" class="mt-1 block w-full border rounded-md p-1.5 bg-white text-xs"></select>
+                </div>
+                <div>
+                  <span class="text-gray-700 block font-semibold" data-i18n="add.soil">Acidez del suelo</span>
+                  <select id="soil-select" class="mt-1 block w-full border rounded-md p-1.5 bg-white text-xs"></select>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div id="search-results" class="mt-2 hidden">
+            <p id="search-status" class="text-xs text-gray-600 mb-2"></p>
+            <button type="button" id="add-location-btn" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold hover:bg-blue-700 transition text-xs hidden" data-i18n="add.addBtn">Añadir a Mis Lugares</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Fase Lunar -->
+      <div id="moon-phase-card" class="bg-white shadow-lg rounded-2xl p-5 border border-green-100 flex flex-col justify-center items-center">
+        <h3 class="text-lg font-bold text-green-900 mb-2 text-center" data-i18n="moon.title">Fase Lunar Actual</h3>
+        <div class="flex items-center space-x-3">
+          <span id="moon-emoji" class="text-5xl"></span>
+          <div>
+            <p id="moon-phase-name" class="font-bold text-gray-800 text-base"></p>
+            <p id="next-full-moon" class="text-xs text-gray-600 mt-1"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Parques Micológicos -->
+      <div class="bg-white shadow-lg rounded-2xl p-5 border border-green-100 flex flex-col justify-between" id="parks-card">
+        <div>
+          <h3 class="text-lg font-bold text-green-900 mb-1" data-i18n="parks.title">Parques Micológicos</h3>
+          <p class="text-xs text-gray-600 mb-3" data-i18n="parks.desc">Información oficial de acotados y acotaciones:</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="https://parquemicologicoultzama.com/" target="_blank" rel="noopener" class="px-3 py-1.5 bg-emerald-100 text-emerald-900 rounded-lg font-bold hover:bg-emerald-200 transition text-xs">🌲 Ultzama</a>
+          <a href="https://www.parquemicologicoerro.com/" target="_blank" rel="noopener" class="px-3 py-1.5 bg-emerald-100 text-emerald-900 rounded-lg font-bold hover:bg-emerald-200 transition text-xs">🌲 Erro-Arribe</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles de Filtrado y Ordenación -->
+    <div id="controls" class="bg-white shadow-md rounded-xl p-4 mb-6 flex flex-wrap gap-4 items-center justify-between border border-green-100">
+      <div class="flex flex-wrap gap-2 items-center text-xs md:text-sm">
+        <span class="font-bold text-gray-700" data-i18n="controls.filterBy">Filtrar por:</span>
+        <button data-filter="all" class="filter-btn bg-emerald-700 text-white px-3 py-1 rounded-lg font-semibold" data-i18n="controls.all">Todas</button>
+        <button data-filter="Alta" class="filter-btn bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg font-semibold" data-i18n="controls.high">Alta</button>
+        <button data-filter="Media" class="filter-btn bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-lg font-semibold" data-i18n="controls.mid">Media</button>
+        <button data-filter="Baja" class="filter-btn bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-lg font-semibold" data-i18n="controls.low">Baja</button>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center text-xs md:text-sm">
+        <span class="font-bold text-gray-700" data-i18n="controls.sortBy">Ordenar por:</span>
+        <button data-sort="name" class="sort-btn bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-lg font-semibold" data-i18n="controls.name">Nombre</button>
+        <button data-sort="chance" class="sort-btn bg-emerald-700 text-white px-3 py-1 rounded-lg font-semibold" data-i18n="controls.chance">Probabilidad</button>
+      </div>
+    </div>
+
+    <!-- Grid de Tarjetas de Ubicación -->
+    <div id="grid-container">
+      <p id="loading-message" class="text-center text-gray-700 text-lg font-bold hidden my-8">
+        <span data-i18n="loading">Cargando predicciones bioclimáticas...</span>
+        <span class="loading-spinner inline-block align-middle ml-2"></span>
+      </p>
+      <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      
+      <div id="welcome-message" class="hidden text-center max-w-xl mx-auto p-8 bg-white shadow-xl rounded-2xl border border-green-100 my-8">
+        <h2 class="text-2xl font-bold text-green-800 mb-3" data-i18n="welcome.title">¡Bienvenido a Zizak!</h2>
+        <p class="text-gray-600 text-sm leading-relaxed" data-i18n="welcome.text">
+          Añade tus zonas micológicas favoritas con el buscador superior o pulsa directamente sobre cualquier punto en la pestaña <b>Mapa Territorial</b> para iniciar el análisis.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: MAPA TERRITORIAL -->
+  <section id="section-map" class="tab-section max-w-6xl mx-auto px-4">
+    <div class="bg-white shadow-xl rounded-2xl p-5 border border-green-100">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+        <div>
+          <h2 class="text-2xl font-bold text-green-900" data-i18n="map.title">Mapa de Fructificación Territorial</h2>
+          <p class="text-xs text-gray-600" data-i18n="map.subtitle">Haz clic en cualquier punto de Navarra y zonas limítrofes para analizar el área.</p>
+        </div>
+        <div class="flex gap-2 text-xs">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-100 text-green-800 font-bold">● <span data-i18n="controls.high">Alta</span></span>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800 font-bold">● <span data-i18n="controls.mid">Media</span></span>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-800 font-bold">● <span data-i18n="controls.low">Baja</span></span>
+        </div>
+      </div>
+      <div class="relative">
+        <div id="map"></div>
+        <div class="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-lg border border-emerald-200 text-xs text-gray-800 flex flex-col gap-1.5 min-w-[210px]">
+          <div class="flex justify-between items-center font-bold text-green-900">
+            <span data-i18n="map.opacityTitle">🗺️ Zonas Navarra (A-S)</span>
+            <span id="opacity-val-badge" class="bg-emerald-100 text-emerald-800 text-[11px] px-1.5 py-0.5 rounded font-mono font-bold">60%</span>
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-[10px] text-gray-500 font-bold">0%</span>
+            <input type="range" id="map-opacity-slider" min="0" max="100" value="60" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+            <span class="text-[10px] text-gray-500 font-bold">100%</span>
+          </div>
+          <p class="text-[10px] text-gray-500 italic mt-0.5" data-i18n="map.opacityDesc">Capa de montes (Proyecto MYCOSILVA)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: GUÍA DE SETAS & RECETARIO -->
+  <section id="section-guide" class="tab-section max-w-6xl mx-auto px-4">
+    <div class="bg-white shadow-xl rounded-2xl p-6 border border-green-100">
+      <!-- Subtabs Guía / Recetas -->
+      <div class="flex border-b border-gray-200 mb-6 gap-6">
+        <button id="subtab-guide-btn" class="py-2 px-1 border-b-2 border-emerald-600 font-bold text-emerald-800 text-base" data-i18n="guide.subtabGuide">Fichas de Especies</button>
+        <button id="subtab-recipes-btn" class="py-2 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-800 text-base" data-i18n="guide.subtabRecipes">Recetario & Conservación</button>
+      </div>
+
+      <!-- SUBSECCIÓN GUÍA -->
+      <div id="subtab-guide-content">
+        <div class="mb-4 flex flex-wrap gap-3">
+          <input id="guide-search" type="text" class="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-green-500" data-i18n-ph="guide.searchPh" placeholder="Buscar por especie, nombre común o euskera..." />
+        </div>
+        <div id="guide-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+
+      <!-- SUBSECCIÓN RECETAS -->
+      <div id="subtab-recipes-content" class="hidden space-y-6">
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 text-xs text-amber-900" data-i18n="recipes.intro">
+          🍳 <b>Consejo gastronómico:</b> Limpia las setas en seco con cepillo suave o paño húmedo. Evita lavarlas con agua abundante para preservar su aroma y textura.
+        </div>
+        <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: CUADERNO DE CAMPO -->
+  <section id="section-journal" class="tab-section max-w-6xl mx-auto px-4">
+    <div class="bg-white shadow-xl rounded-2xl p-6 border border-green-100">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-green-900" data-i18n="journal.title">Mi Cuaderno de Campo Micológico</h2>
+          <p class="text-xs text-gray-600" data-i18n="journal.desc">Registra de forma privada tus capturas, zonas, cantidades y fotografías.</p>
+        </div>
+        <button id="new-journal-entry-btn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 shadow">
+          ➕ <span data-i18n="journal.newBtn">Nueva Captura</span>
+        </button>
+      </div>
+
+      <!-- Formulario Nueva Captura -->
+      <div id="journal-form-card" class="bg-emerald-50 rounded-xl p-5 mb-6 border border-emerald-200 hidden">
+        <h3 class="font-bold text-emerald-900 text-lg mb-4" data-i18n="journal.formTitle">Registrar Salida al Monte</h3>
+        <form id="journal-form" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.date">Fecha</label>
+              <input type="date" id="j-date" required class="w-full p-2 border rounded-lg text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.location">Lugar / Zona</label>
+              <input type="text" id="j-location" placeholder="Ej. Hayedo de Ultzama" required class="w-full p-2 border rounded-lg text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.species">Especie principal</label>
+              <select id="j-species" class="w-full p-2 border rounded-lg text-sm bg-white"></select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.quantity">Cantidad / Peso (kg)</label>
+              <input type="text" id="j-quantity" placeholder="Ej. 2.5 kg" class="w-full p-2 border rounded-lg text-sm bg-white" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.photo">Fotografía (opcional)</label>
+              <input type="file" id="j-photo" accept="image/*" class="w-full text-xs text-gray-600 p-1 border rounded-lg bg-white" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="journal.notes">Comentarios / Observaciones</label>
+            <textarea id="j-notes" rows="2" placeholder="Estado del bosque, humedad, claros recomendados..." class="w-full p-2 border rounded-lg text-sm bg-white"></textarea>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" id="cancel-journal-btn" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg text-xs" data-i18n="journal.cancel">Cancelar</button>
+            <button type="submit" class="px-5 py-2 bg-emerald-700 text-white font-bold rounded-lg text-xs hover:bg-emerald-800" data-i18n="journal.save">Guardar Captura</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Lista de Registros -->
+      <div id="journal-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="journal-empty" class="text-center py-12 text-gray-500 text-sm" data-i18n="journal.empty">
+        Aún no has registrado ninguna captura. ¡Añade tu primera salida al monte!
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: AJUSTES DEL MODELO -->
+  <section id="section-settings" class="tab-section max-w-6xl mx-auto px-4">
+    <div class="bg-white shadow-xl rounded-2xl p-6 border border-green-100">
+      <h2 class="text-2xl font-bold text-emerald-900 mb-4" data-i18n="settings.title">Calibración Bioclimática del Modelo</h2>
+      <div class="flex gap-6 border-b pb-3 mb-6 font-semibold text-sm">
+        <button class="settings-tab active text-emerald-800 border-b-2 border-emerald-600 pb-1" data-tab="general" data-i18n="settings.tabs.general">General & Clima</button>
+        <button class="settings-tab text-gray-500 hover:text-gray-800 pb-1" data-tab="triggers" data-i18n="settings.tabs.triggers">Disparadores de Lluvia</button>
+        <button class="settings-tab text-gray-500 hover:text-gray-800 pb-1" data-tab="species" data-i18n="settings.tabs.species">Especies & Curvas</button>
+      </div>
+
+      <!-- Subsección General -->
+      <div id="settings-section-general" class="settings-section space-y-6">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+            <h3 class="font-bold text-emerald-900 mb-3" data-i18n="settings.general.smiTitle">Humedad de suelo (SMI)</h3>
+            <div class="space-y-2 text-xs">
+              <label class="grid-field"><span data-i18n="settings.general.smaxAcid">Smax suelo ácido</span><input data-set="smi.smax.acid" type="number" class="border rounded p-1 w-24"></label>
+              <label class="grid-field"><span data-i18n="settings.general.smaxBasic">Smax suelo básico</span><input data-set="smi.smax.basic" type="number" class="border rounded p-1 w-24"></label>
+              <label class="grid-field"><span data-i18n="settings.general.smaxDefault">Smax por defecto</span><input data-set="smi.smax.default" type="number" class="border rounded p-1 w-24"></label>
+            </div>
+          </div>
+
+          <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+            <h3 class="font-bold text-emerald-900 mb-3" data-i18n="settings.general.tempTitle">Temperatura Base (°C)</h3>
+            <div class="space-y-2 text-xs">
+              <label class="grid-field"><span data-i18n="settings.general.tOpt">Óptimo (min-max °C)</span><span><input data-set="base.temp.optMin" type="number" step="0.5" class="border rounded p-1 w-16"> - <input data-set="base.temp.optMax" type="number" step="0.5" class="border rounded p-1 w-16"></span></label>
+              <label class="grid-field"><span data-i18n="settings.general.tHeatTh">Castigo calor si T></span><input data-set="base.temp.heatThresh" type="number" step="0.5" class="border rounded p-1 w-24"></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4">
+          <button id="reset-settings" class="px-4 py-2 rounded-lg bg-red-100 text-red-700 text-xs font-bold" data-i18n="settings.reset">Restaurar por defecto</button>
+        </div>
+      </div>
+
+      <!-- Subsección Disparadores -->
+      <div id="settings-section-triggers" class="settings-section hidden space-y-6">
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+          <h3 class="font-bold text-emerald-900 mb-3" data-i18n="settings.trg.global">Ventanas y Umbrales Globales</h3>
+          <div class="grid md:grid-cols-3 gap-4 text-xs">
+            <div>
+              <p class="font-bold mb-1">15 mm</p>
+              <label class="grid-field"><span>Retardo min (d)</span><input data-set="triggers.mm15.lagMin" type="number" class="border rounded p-1 w-20"></label>
+              <label class="grid-field"><span>Retardo max (d)</span><input data-set="triggers.mm15.lagMax" type="number" class="border rounded p-1 w-20"></label>
+            </div>
+            <div>
+              <p class="font-bold mb-1">20 mm</p>
+              <label class="grid-field"><span>Retardo min (d)</span><input data-set="triggers.mm20.lagMin" type="number" class="border rounded p-1 w-20"></label>
+              <label class="grid-field"><span>Retardo max (d)</span><input data-set="triggers.mm20.lagMax" type="number" class="border rounded p-1 w-20"></label>
+            </div>
+            <div>
+              <p class="font-bold mb-1">25 mm</p>
+              <label class="grid-field"><span>Retardo min (d)</span><input data-set="triggers.mm25.lagMin" type="number" class="border rounded p-1 w-20"></label>
+              <label class="grid-field"><span>Retardo max (d)</span><input data-set="triggers.mm25.lagMax" type="number" class="border rounded p-1 w-20"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subsección Especies Formulario Dinámico -->
+      <div id="settings-section-species" class="settings-section hidden space-y-6">
+        <div id="species-forms" class="grid md:grid-cols-2 gap-4"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL DE AYUDA EXPLICATIVA -->
+  <div id="help-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="content">
+      <span class="close-x">✕</span>
+      <h2 id="help-title" class="text-2xl font-bold text-green-900 mb-4" data-i18n="help.title">Acerca de Zizak y el Modelo Bioclimático</h2>
+      <p class="mb-4 text-sm text-gray-700 leading-relaxed" data-i18n="help.p1">Esta aplicación calcula la probabilidad de fructificación combinando predicciones de Open-Meteo con los principios del proyecto MICOSYLVA, especies de Navarra y la Guía General de Cesta y Setas.</p>
+      <h3 class="font-bold text-base mb-2 text-green-900" data-i18n="help.how">Factores Clave del Algoritmo:</h3>
+      <ul class="list-disc list-inside space-y-1.5 mb-4 text-xs text-gray-700" id="help-list"></ul>
+      <p class="mt-6 text-xs text-gray-500 italic" data-i18n="help.footer">Aviso: Recolecta con respeto al medio ambiente y jamás consumas setas sin identificación 100% segura por expertos.</p>
+    </div>
+  </div>
+
+  <!-- MODAL DE EXPORTACIÓN E IMPORTACIÓN -->
+  <div id="sync-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="content max-w-md">
+      <span class="close-x">✕</span>
+      <h2 class="text-xl font-bold text-emerald-900 mb-3" data-i18n="sync.title">Copia de Seguridad y Sincronización</h2>
+      <p class="text-xs text-gray-600 mb-4" data-i18n="sync.desc">Exporta o importa tus ubicaciones guardadas, ajustes del modelo y cuaderno de campo en un único archivo JSON.</p>
+      
+      <div class="space-y-4">
+        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <h4 class="font-bold text-xs text-emerald-900 mb-2" data-i18n="sync.exportTitle">Exportar Copia de Seguridad</h4>
+          <button id="export-json-btn" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 rounded-lg text-xs transition">
+            📥 <span data-i18n="sync.exportBtn">Descargar Copia (.json)</span>
+          </button>
+        </div>
+
+        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <h4 class="font-bold text-xs text-emerald-900 mb-2" data-i18n="sync.importTitle">Restaurar desde Archivo</h4>
+          <input type="file" id="import-json-file" accept=".json" class="w-full text-xs text-gray-600 mb-2" />
+          <button id="import-json-btn" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-lg text-xs transition">
+            📤 <span data-i18n="sync.importBtn">Importar y Restaurar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /******************** I18N DICCIONARIO BILINGÜE (ES/EU) ********************/
+    const I18N = {
+      es: {
+        subtitle: "Predicción bioclimática, mapa territorial de Navarra y guía micológica ampliada (Cesta y Setas & Ultzama).",
+        nav: { forecast: "Predicción & Lugares", map: "Mapa Territorial", guide: "Guía & Recetas", journal: "Cuaderno de Campo", settings: "Ajustes" },
+        add: { title: "Añadir nueva ubicación", placeholder: "Ej. Aralar, Selva Irati, Ultzama", search: "Buscar", habitatSummary: "Hábitat y Suelo (MICOSYLVA)", habitatType: "Tipo de hábitat", canopy: "Luminosidad del bosque", age: "Edad arbolado", soil: "Acidez del suelo", addBtn: "Añadir a Mis Lugares" },
+        moon: { title: "Fase Lunar Actual", next: "Próxima luna llena: " },
+        parks: { title: "Parques Micológicos", desc: "Información oficial de acotados y acotaciones:" },
+        controls: { filterBy: "Filtrar por:", all: "Todas", high: "Alta", mid: "Media", low: "Baja", sortBy: "Ordenar por:", name: "Nombre", chance: "Probabilidad" },
+        loading: "Cargando predicciones bioclimáticas...",
+        welcome: { title: "¡Bienvenido a Zizak!", text: "Añade tus zonas micológicas favoritas con el buscador superior o pulsa directamente sobre cualquier punto en la pestaña Mapa Territorial para iniciar el análisis." },
+        forecast7: "Previsión para 7 días:",
+        speciesTitle: "Predicción por especie",
+        score: "Puntuación",
+        chanceMap: { Alta: "Alta", Media: "Media", Baja: "Baja" },
+        map: { title: "Mapa de Fructificación Territorial", subtitle: "Haz clic en cualquier punto de Navarra y zonas limítrofes para analizar el área.", opacityTitle: "🗺️ Zonas Navarra (A-S)", opacityDesc: "Capa de montes (Proyecto MYCOSILVA)" },
+        guide: { subtabGuide: "Fichas de Especies", subtabRecipes: "Recetario & Conservación", searchPh: "Buscar por especie, nombre común o euskera...", traits: "Rasgos clave", habitat: "Hábitat y época", confusions: "Confusiones y precaución" },
+        recipes: { intro: "🍳 Consejo gastronómico: Limpia las setas en seco con cepillo suave o paño húmedo. Evita lavarlas con agua abundante para preservar su aroma y textura.", prep: "Preparación", preservation: "Conservación recomendada" },
+        journal: { title: "Mi Cuaderno de Campo Micológico", desc: "Registra de forma privada tus capturas, zonas, cantidades y fotografías.", newBtn: "Nueva Captura", formTitle: "Registrar Salida al Monte", date: "Fecha", location: "Lugar / Zona", species: "Especie principal", quantity: "Cantidad / Peso (kg)", photo: "Fotografía (opcional)", notes: "Comentarios / Observaciones", save: "Guardar Captura", cancel: "Cancelar", empty: "Aún no has registrado ninguna captura. ¡Añade tu primera salida al monte!" },
+        settings: { title: "Calibración Bioclimática del Modelo", tabs: { general: "General & Clima", triggers: "Disparadores de Lluvia", species: "Especies & Curvas" }, reset: "Restaurar por defecto", general: { smiTitle: "Humedad de suelo (SMI)", smaxAcid: "Smax suelo ácido", smaxBasic: "Smax suelo básico", smaxDefault: "Smax por defecto", tempTitle: "Temperatura Base (°C)", tOpt: "Óptimo (min-max °C)", tHeatTh: "Castigo calor si T>" }, trg: { global: "Ventanas y Umbrales Globales" } },
+        sync: { btn: "Copia / Sync", title: "Copia de Seguridad y Sincronización", desc: "Exporta o importa tus ubicaciones guardadas, ajustes del modelo y cuaderno de campo en un único archivo JSON.", exportTitle: "Exportar Copia de Seguridad", exportBtn: "Descargar Copia (.json)", importTitle: "Restaurar desde Archivo", importBtn: "Importar y Restaurar" },
+        help: { title: "Acerca de Zizak y el Modelo Bioclimático", p1: "Esta aplicación calcula la probabilidad de fructificación combinando predicciones de Open-Meteo con datos de MICOSYLVA, Ultzama y Cesta y Setas.", how: "Factores Clave del Algoritmo:", list: ["SMI (Humedad de suelo): Integración acumulativa de lluvia efectiva y ET0.", "Luminosidad del Hayedo: Los hayedos claros y trasmochos producen hasta 3x más Boletus.", "Acidez del Suelo: Hayedos acidófilos (brezo/arándano) producen 3.5 kg/ha vs 0.9 kg/ha basófilos.", "Categorización de Especies: Marcadas las más frecuentes en Navarra (Ultzama) y amplio catálogo general.", "VPD y Heladas: Penalizaciones por aire seco y heladas nocturnas recientes."], footer: "Aviso: Recolecta con respeto al medio ambiente y jamás consumas setas sin identificación 100% segura por expertos." },
+        breakdown: {
+          soil_wet: "Suelo húmedo (SMI ≥ 0.7)",
+          soil_mid: "Suelo con humedad media (SMI ≥ 0.5)",
+          soil_dry: "Suelo algo seco (SMI > 0.3)",
+          soil_dry_severe: "Suelo seco (SMI ≤ 0.3)",
+          pulse_rain: "Brote tras lluvia reciente",
+          temp_opt: "Temp. óptima",
+          heat_penalty: "Calor alto",
+          vpd_low: "VPD bajo (óptimo)",
+          vpd_mid: "VPD medio",
+          vpd_high: "VPD alto (aire seco)",
+          wind_heat: "Viento + calor",
+          frost: "Heladas recientes",
+          alt_high: "Alta montaña (>1000m)",
+          alt_low_early: "Zona baja y temporada temprana",
+          habitat_mult: "Factor de hábitat / acidez / luz"
+        }
+      },
+      eu: {
+        subtitle: "Fruktifikazioaren iragarpen bioklimatikoa, Nafarroako mapa eta gida zabaldua (Cesta y Setas & Ultzama).",
+        nav: { forecast: "Iragarpena & Lekuak", map: "Lurralde Mapa", guide: "Gida & Errezetak", journal: "Nire Koadernoa", settings: "Ezarpenak" },
+        add: { title: "Kokapen berria gehitu", placeholder: "Adib. Aralar, Irati Oihana, Ultzama", search: "Bilatu", habitatSummary: "Habitata eta Lurra (MICOSYLVA)", habitatType: "Habitat mota", canopy: "Basoaren argitasuna", age: "Zuhaitzen adina", soil: "Lurzoruaren azidotasuna", addBtn: "Gehitu Nire Lekuetara" },
+        moon: { title: "Uneko Ilargi Fasea", next: "Hurrengo ilargi betea: " },
+        parks: { title: "Parke Mikologikoak", desc: "Informazio ofiziala:" },
+        controls: { filterBy: "Iragazi honen arabera:", all: "Guztiak", high: "Handia", mid: "Ertaina", low: "Txikia", sortBy: "Ordenatu honen arabera:", name: "Izena", chance: "Aukera" },
+        loading: "Aurreikuspen bioklimatikoak kargatzen...",
+        welcome: { title: "Ongi etorri Zizak-era!", text: "Gehitu zure leku gogokoenak goiko bilatzailearekin edo sakatu zuzenean Lurralde Mapako edozein puntutan azterketa hasteko." },
+        forecast7: "7 egunetarako aurreikuspena:",
+        speciesTitle: "Espezieen iragarpena",
+        score: "Puntuazioa",
+        chanceMap: { Alta: "Handia", Media: "Ertaina", Baja: "Txikia" },
+        map: { title: "Lurraldeko Fruktifikazio Mapa", subtitle: "Klikatu Nafarroako eta inguruko edozein puntutan eremua aztertzeko.", opacityTitle: "🗺️ Nafarroako Eremuak (A-S)", opacityDesc: "Mendi geruza (MYCOSILVA Proiektua)" },
+        guide: { subtabGuide: "Espezieen Fitxak", subtabRecipes: "Errezetak & Kontserbazioa", searchPh: "Bilatu espezie, izen arrunt edo euskaraz...", traits: "Ezaugarri nagusiak", habitat: "Habitata eta garaia", confusions: "Antzekoak eta kontuz" },
+        recipes: { intro: "🍳 Sukaldaritza aholkua: Garbitu onddoak lehorrean eskuila edo oihal heze batekin. Ekidin ur ugarirekin garbitzea haien lurrina mantentzeko.", prep: "Prestatzea", preservation: "Gomendatutako kontserbazioa" },
+        journal: { title: "Nire Koaderno Mikologikoa", desc: "Gorde modu pribatuan zure bildumak, eremuak, kopuruak eta argazkiak.", newBtn: "Kapture Berria", formTitle: "Mendira Irteera Gorde", date: "Data", location: "Lekua / Eremua", species: "Espezie nagusia", quantity: "Kopurua / Pisua (kg)", photo: "Argazkia (aukerakoa)", notes: "Oharrak / Oharpenak", save: "Gorde Kaptura", cancel: "Utzi", empty: "Ez duzu katurarik erregistratu oraindik. Gehitu zure lehen irteera!" },
+        settings: { title: "Ereduaren Kalibrazio Bioklimatikoa", tabs: { general: "Orokorra & Klimatologia", triggers: "Euri Abiarazleak", species: "Espezieak & Kurbak" }, reset: "Lehenetsietara itzuli", general: { smiTitle: "Lurzoruaren hezetasuna (SMI)", smaxAcid: "Smax lur azidoa", smaxBasic: "Smax lur oinarrizkoa", smaxDefault: "Smax lehenetsia", tempTitle: "Oinarrizko Tenperatura (°C)", tOpt: "Optimoa (min-max °C)", tHeatTh: "Zigorra beroagatik" }, trg: { global: "Atalaseak eta Leiho Orokorrak" } },
+        sync: { btn: "Kopia / Sync", title: "Babes Kopia eta Sinkronizazioa", desc: "Exportatu edo inportatu zure lekuak, ezarpenak eta koadernoa JSON fitxategi bakar batean.", exportTitle: "Exportatu Babes Kopia", exportBtn: "Deskargatu Kopia (.json)", importTitle: "Berreskuratu Fitxategitik", importBtn: "Inportatu eta Berreskuratu" },
+        help: { title: "Zizak eta Eredu Bioklimatikoari Buruz", p1: "Aplikazio honek onddoen fruktifikazio aukera kalkulatzen du Open-Meteoko datuak, MICOSYLVA eta Cesta y Setas gidak konbinatuz.", how: "Algoritmoaren Gakoak:", list: ["SMI (Lur hezetasuna): Euri eraginkorraren eta ET0ren metaketa.", "Pago-basoen Argitasuna: Baso argiek 3x Boletus gehiago ekoizten dituzte.", "Lurraren Azidotasuna: Lur azidoek (txilarra) 3.5 kg/ha ekoizten dituzte vs 0.9 kg/ha oinarrizkoek.", "Nafarroan maizagoak markatuta (Ultzama) eta Cesta y Setas gida orokorra.", "VPD eta Izozteak: Zigorrak haize lehorragatik eta izozteengatik."], footer: "Oharra: Bildu ingurumena errespetatuz eta inoiz ez jani identifikazio osoa gabe." },
+        breakdown: {
+          soil_wet: "Lurzoru hezea (SMI ≥ 0.7)",
+          soil_mid: "Lurzoru ertain-hezea (SMI ≥ 0.5)",
+          soil_dry: "Lurzoru pixka bat lehorra (SMI > 0.3)",
+          soil_dry_severe: "Lurzoru lehorra (SMI ≤ 0.3)",
+          pulse_rain: "Euri ondoren agerpena",
+          temp_opt: "Tenperatura egokia",
+          heat_penalty: "Bero handia",
+          vpd_low: "VPD baxua (egokia)",
+          vpd_mid: "VPD ertaina",
+          vpd_high: "VPD handia (haize lehorra)",
+          wind_heat: "Haizea + beroa",
+          frost: "Azken izozteak",
+          alt_high: "Mendi garaia (>1000m)",
+          alt_low_early: "Behe-aldea eta sasoi goiztiarra",
+          habitat_mult: "Habitat / azidotasun / argi faktorea"
+        }
+      }
+    };
+
+    const getLang = () => localStorage.getItem('zizak_lang') || 'es';
+    const setLang = (v) => { const val = (v === 'eu') ? 'eu' : 'es'; localStorage.setItem('zizak_lang', val); return val; };
+    const isEU = () => getLang() === 'eu';
+    function t(path) { const lang = getLang(); const parts = path.split('.'); let node = I18N[lang]; for (const p of parts) { node = node?.[p]; if (node === undefined) return path; } return node; }
+    
+    function applyStaticI18N() {
+      const lang = getLang();
+      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); const v = t(k); if (v != null) el.textContent = v; });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); const v = t(k); if (v != null) el.setAttribute('placeholder', v); });
+      const b = document.getElementById('__langBtn');
+      if (b) b.querySelector('span').textContent = (lang === 'eu') ? 'Castellano' : 'Euskara';
+      fillSelectOptions();
+      fillHelpLists();
+      renderMoonPhase();
+    }
+
+    function fillHelpLists() {
+      const ul = document.getElementById('help-list');
+      if (ul) ul.innerHTML = (t('help.list') || []).map(x => `<li>${x}</li>`).join('');
+    }
+
+    /******************** FECHAS ********************/
+    const WEEKDAY_SHORT = { es: ['dom','lun','mar','mié','jue','vie','sáb'], eu: ['ig.','al.','ar.','az.','og.','ol.','lr.'] };
+    const MONTH_SHORT = { es: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], eu: ['urt','ots','mar','api','mai','eka','uzt','abu','ira','urr','aza','abe'] };
+    function fmtWeekdayShort(dLike) { const d = new Date(dLike); return `${WEEKDAY_SHORT[getLang()][d.getDay()]} ${d.getDate()} ${MONTH_SHORT[getLang()][d.getMonth()]}`; }
+    function fmtDayMonthShort(dLike) { const d = new Date(dLike); return `${d.getDate()} ${MONTH_SHORT[getLang()][d.getMonth()]}`; }
+
+    /******************** SELECTS MICOSYLVA ********************/
+    const HABITATS = [
+      ['hayedo', 'Hayedo (Fagus sylvatica) / Pago-basoa'],
+      ['robledal_atlantico', 'Robledal atlántico (Quercus robur) / Hariztia'],
+      ['pinar_silvestre', 'Pinar de pino silvestre (Pinus sylvestris) / Pinudia'],
+      ['carrascal', 'Carrascal / Arte-sasia'],
+      ['mixto_caducifolio', 'Mixto caducifolio / Hostoerorkor nahasia'],
+      ['prado_pastizal', 'Prados y pastizales / Larreak']
+    ];
+    const CANOPY_OPTIONS = [
+      ['claro_trasmocho', 'Claro / Hayas trasmochas (Luminoso +3.5 kg/ha)'],
+      ['normal', 'Densidad normal / Dentsitate arrunta'],
+      ['sombrio_denso', 'Sombrío / Muy denso (-70% prod)']
+    ];
+    const AGES = [['maduro', 'Maduro (>80 años)'], ['medio', 'Medio (40-80 años)'], ['joven', 'Joven (<20 años - Baja fructificación)']];
+    const SOILS = [['acidofilo', 'Acidófilo / Azidoa (Brezo/Arándano - High Prod)'], ['basofilo', 'Basófilo / Oinarrizkoa']];
+
+    function fillSelectOptions() {
+      const fill = (id, arr) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = el.value;
+        el.innerHTML = arr.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+        if (val) el.value = val;
+      };
+      fill('habitat-select', HABITATS);
+      fill('canopy-select', CANOPY_OPTIONS);
+      fill('age-select', AGES);
+      fill('soil-select', SOILS);
+    }
+
+    /******************** NOTIFICACIONES ********************/
+    function showNotification(msg, type = 'info') {
+      const n = document.getElementById('notification');
+      n.textContent = msg;
+      n.className = `max-w-6xl mx-auto mb-4 p-4 rounded-xl text-sm font-medium shadow-sm ${type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : (type === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 'bg-blue-100 text-blue-800 border border-blue-200')}`;
+      n.classList.remove('hidden');
+      setTimeout(() => n.classList.add('hidden'), 3500);
+    }
+
+    /******************** APIS & WEATHER ********************/
+    const OPENMETEO_URL = "https://api.open-meteo.com/v1/forecast";
+    const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+
+    async function fetchAltitude(lat, lon) {
+      const key = `alt:${lat.toFixed(4)},${lon.toFixed(4)}`;
+      const cached = localStorage.getItem(key);
+      if (cached) return Number(cached);
+      try {
+        const r = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`);
+        const j = await r.json();
+        const h = j?.elevation?.[0];
+        if (Number.isFinite(h)) { localStorage.setItem(key, String(h)); return h; }
+      } catch (_) {}
+      return 600;
+    }
+
+    async function fetchWeather(lat, lon) {
+      const cacheKey = `weather_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+      const cached = localStorage.getItem(cacheKey);
+      const time = localStorage.getItem(`${cacheKey}_time`);
+      if (cached && time && (Date.now() - parseInt(time)) < 6 * 3600 * 1000) {
+        return JSON.parse(cached);
+      }
+      const url = `${OPENMETEO_URL}?latitude=${lat}&longitude=${lon}&past_days=14&forecast_days=7&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,et0_fao_evapotranspiration&timezone=Europe%2FMadrid`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('Error al conectar con servidor meteorológico');
+      const data = await r.json();
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+      localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
+      return data;
+    }
+
+    function processDailyData(data) {
+      const days = {};
+      data.hourly.time.forEach((timeStr, i) => {
+        const date = timeStr.split('T')[0];
+        if (!days[date]) days[date] = { temps: [], rain: 0, rh: [], wind: [], et0: [] };
+        days[date].temps.push(data.hourly.temperature_2m[i]);
+        days[date].rh.push(data.hourly.relative_humidity_2m[i]);
+        days[date].rain += (data.hourly.precipitation[i] || 0);
+        days[date].wind.push(data.hourly.wind_speed_10m[i]);
+        days[date].et0.push(data.hourly.et0_fao_evapotranspiration[i] || 0);
+      });
+      return Object.entries(days).map(([date, v]) => ({
+        date,
+        rain_for_day: v.rain,
+        temp_min: Math.min(...v.temps),
+        temp_max: Math.max(...v.temps),
+        avg_temp: v.temps.reduce((a, b) => a + b, 0) / v.temps.length,
+        avg_humidity: v.rh.reduce((a, b) => a + b, 0) / v.rh.length,
+        avg_wind_speed: v.wind.reduce((a, b) => a + b, 0) / v.wind.length,
+        avg_et0: v.et0.reduce((a, b) => a + b, 0) / v.et0.length,
+        weather_code: 0
+      }));
+    }
+
+    /******************** DEFAULT LOCATIONS & SETTINGS ********************/
+    const DEFAULT_LOCATIONS = [
+      { name: "Ultzama (Parque Micológico)", lat: 43.0095, lon: -1.6846, habitat: "hayedo", canopy: "claro_trasmocho", ageClass: "maduro", soilAcidity: "acidofilo" },
+      { name: "Selva de Irati", lat: 42.9750, lon: -1.1180, habitat: "hayedo", canopy: "normal", ageClass: "maduro", soilAcidity: "acidofilo" },
+      { name: "Sierra de Aralar (Altsasu)", lat: 42.9078, lon: -2.1706, habitat: "hayedo", canopy: "claro_trasmocho", ageClass: "maduro", soilAcidity: "acidofilo" }
+    ];
+
+    const DEFAULT_SETTINGS = {
+      smi: { smax: { acid: 95, basic: 70, default: 80 } },
+      base: { temp: { optMin: 8, optMax: 18, heatThresh: 24, optPts: 1.5, heatPenalty: -1.2 }, vpd: { lowThresh: 0.6, midThresh: 1.2, highThresh: 2.0 }, alt: { lapse: 0.006, ref: 600 } },
+      triggers: {
+        mm15: { th: 15, lagMin: 4, lagMax: 10 },
+        mm20: { th: 20, lagMin: 5, lagMax: 12 },
+        mm25: { th: 25, lagMin: 6, lagMax: 12 },
+        weights: {
+          boletus_aestivalis: { w15: 0.4, w20: 0.6, w25: 0.7 },
+          boletus_aereus: { w15: 0.3, w20: 0.6, w25: 0.8 },
+          boletus_edulis: { w15: 0.3, w20: 0.7, w25: 0.9 },
+          boletus_pinophilus: { w15: 0.3, w20: 0.6, w25: 0.8 },
+          cantharellus: { w15: 0.6, w20: 0.5, w25: 0.3 },
+          lactarius: { w15: 0.7, w20: 0.5, w25: 0.3 },
+          lepista_nuda: { w15: 0.5, w20: 0.6, w25: 0.4 },
+          hydnum_repandum: { w15: 0.5, w20: 0.6, w25: 0.4 },
+          amanita_caesarea: { w15: 0.3, w20: 0.6, w25: 0.8 },
+          hygrophorus_marzuolus: { w15: 0.5, w20: 0.5, w25: 0.4 },
+          neoboletus_erythropus: { w15: 0.4, w20: 0.6, w25: 0.7 },
+          leccinum_quercinum: { w15: 0.4, w20: 0.6, w25: 0.7 },
+          tricholoma_columbetta: { w15: 0.5, w20: 0.5, w25: 0.4 },
+          clitocybe_nebularis: { w15: 0.6, w20: 0.5, w25: 0.3 },
+          cortinarius_caperatus: { w15: 0.5, w20: 0.6, w25: 0.4 },
+          amanita_rubescens: { w15: 0.4, w20: 0.6, w25: 0.5 },
+          pleurotus_eryngii: { w15: 0.5, w20: 0.6, w25: 0.4 },
+          tricholoma_portentosum: { w15: 0.5, w20: 0.6, w25: 0.5 },
+          tricholoma_terreum: { w15: 0.5, w20: 0.5, w25: 0.4 },
+          marasmius_oreades: { w15: 0.6, w20: 0.5, w25: 0.3 },
+          morchella_conica: { w15: 0.5, w20: 0.5, w25: 0.4 },
+          craterellus_lutescens: { w15: 0.6, w20: 0.5, w25: 0.3 },
+          lactarius_sanguifluus: { w15: 0.6, w20: 0.5, w25: 0.4 },
+          calocybe_gambosa: { w15: 0.5, w20: 0.6, w25: 0.4 }
+        }
+      },
+      species: {
+        boletus_aestivalis: { label: 'Boletus aestivalis (Hongo de verano)', temp: { min: 14, max: 24 }, smi: { lo: 0.50, hi: 0.75 }, season: { mu: 215, sigma: 25 } },
+        boletus_aereus: { label: 'Boletus aereus (Hongo negro / Onddo beltza)', temp: { min: 12, max: 22 }, smi: { lo: 0.50, hi: 0.75 }, season: { mu: 250, sigma: 25 } },
+        boletus_edulis: { label: 'Boletus edulis (Hongo blanco / Onddo zuri)', temp: { min: 8, max: 18 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 275, sigma: 25, mu2: 140, sigma2: 15 } },
+        boletus_pinophilus: { label: 'Boletus pinophilus (Hongo de pino)', temp: { min: 6, max: 16 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 275, sigma: 25 } },
+        cantharellus: { label: 'Cantharellus cibarius (Rebozuelo / Ziza hori)', temp: { min: 8, max: 20 }, smi: { lo: 0.60, hi: 0.85 }, season: { mu: 240, sigma: 35 } },
+        lactarius: { label: 'Lactarius deliciosus (Níscalo / Niskaloa)', temp: { min: 9, max: 16 }, smi: { lo: 0.50, hi: 0.70 }, season: { mu: 295, sigma: 20 } },
+        lepista_nuda: { label: 'Lepista nuda (Pie azul / Oinezko urdina)', temp: { min: 4, max: 12 }, smi: { lo: 0.60, hi: 0.80 }, season: { mu: 320, sigma: 25 } },
+        hydnum_repandum: { label: 'Hydnum repandum (Gamuza / Lengua de vaca)', temp: { min: 6, max: 15 }, smi: { lo: 0.60, hi: 0.80 }, season: { mu: 295, sigma: 20 } },
+        amanita_caesarea: { label: 'Amanita caesarea (Seta de los Césares / Kuleto)', temp: { min: 14, max: 25 }, smi: { lo: 0.45, hi: 0.70 }, season: { mu: 245, sigma: 25 } },
+        hygrophorus_marzuolus: { label: 'Hygrophorus marzuolus (Seta de marzo / Marzoko ziza)', temp: { min: 2, max: 12 }, smi: { lo: 0.65, hi: 0.90 }, season: { mu: 75, sigma: 20 } },
+        neoboletus_erythropus: { label: 'Neoboletus erythropus (Boleto de pie rojo / Onddo hankagorria)', temp: { min: 10, max: 20 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 270, sigma: 25 } },
+        leccinum_quercinum: { label: 'Leccinum quercinum (Hongo de roble / Kuku-perretxikoa)', temp: { min: 10, max: 20 }, smi: { lo: 0.50, hi: 0.75 }, season: { mu: 270, sigma: 25 } },
+        tricholoma_columbetta: { label: 'Tricholoma columbetta (Palometa / Ziza zuria)', temp: { min: 8, max: 16 }, smi: { lo: 0.60, hi: 0.85 }, season: { mu: 275, sigma: 20 } },
+        clitocybe_nebularis: { label: 'Clitocybe nebularis (Pardilla / Ilarraka)', temp: { min: 6, max: 14 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 290, sigma: 25 } },
+        cortinarius_caperatus: { label: 'Cortinarius caperatus (Rozites / Cortinario arrugado)', temp: { min: 8, max: 16 }, smi: { lo: 0.60, hi: 0.85 }, season: { mu: 285, sigma: 20 } },
+        amanita_rubescens: { label: 'Amanita rubescens (Amanita enrojeciente / Gibelgorri kuleto gorri)', temp: { min: 10, max: 22 }, smi: { lo: 0.50, hi: 0.75 }, season: { mu: 260, sigma: 25 } },
+        pleurotus_eryngii: { label: 'Pleurotus eryngii (Seta de cardo / Eringio-ziza)', temp: { min: 10, max: 20 }, smi: { lo: 0.40, hi: 0.70 }, season: { mu: 285, sigma: 25, mu2: 110, sigma2: 20 } },
+        tricholoma_portentosum: { label: 'Tricholoma portentosum (Capuchina / Ziza kotiola)', temp: { min: 4, max: 12 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 315, sigma: 20 } },
+        tricholoma_terreum: { label: 'Tricholoma terreum (Negrilla / Fredolic / Ziza beltza)', temp: { min: 4, max: 13 }, smi: { lo: 0.50, hi: 0.75 }, season: { mu: 310, sigma: 25 } },
+        marasmius_oreades: { label: 'Marasmius oreades (Senderuela / Karratxila)', temp: { min: 12, max: 22 }, smi: { lo: 0.50, hi: 0.80 }, season: { mu: 150, sigma: 40, mu2: 275, sigma2: 25 } },
+        morchella_conica: { label: 'Morchella conica (Colmenilla / Kuku-ziza)', temp: { min: 8, max: 16 }, smi: { lo: 0.60, hi: 0.85 }, season: { mu: 105, sigma: 20 } },
+        craterellus_lutescens: { label: 'Craterellus lutescens (Angula de monte / Camagroc / Mendi-angula)', temp: { min: 6, max: 14 }, smi: { lo: 0.65, hi: 0.90 }, season: { mu: 310, sigma: 25 } },
+        lactarius_sanguifluus: { label: 'Lactarius sanguifluus (Níscalo de sangre / Odol-niskaloa)', temp: { min: 10, max: 18 }, smi: { lo: 0.45, hi: 0.70 }, season: { mu: 290, sigma: 20 } },
+        calocybe_gambosa: { label: 'Calocybe gambosa (Seta de San Juan / Perretxikoa)', temp: { min: 10, max: 18 }, smi: { lo: 0.55, hi: 0.80 }, season: { mu: 125, sigma: 20 } }
+      }
+    };
+
+    let SETTINGS = JSON.parse(localStorage.getItem('zizak_settings') || 'null') || DEFAULT_SETTINGS;
+    let LOCATIONS = JSON.parse(localStorage.getItem('zizak_locations') || 'null') || DEFAULT_LOCATIONS;
+    let allForecastData = [];
+    let currentFilter = 'all';
+    let currentSort = 'chance';
+    const chartInstances = {};
+
+    /******************** MODELO BIOCLIMÁTICO ********************/
+    const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+    function doy(dateStr) { const d = new Date(dateStr); const start = new Date(d.getFullYear(), 0, 0); return Math.floor((d - start) / 86400000); }
+    function gauss(x, mu, s) { const z = (x - mu) / s; return Math.exp(-0.5 * z * z); }
+    function triangleSuitability(x, [min, max]) { if (x <= min || x >= max) return 0; const mid = (min + max) / 2; return x <= mid ? (x - min) / (mid - min) : (max - x) / (max - mid); }
+    function smiSuitability(s, [lo, hi]) { if (s <= lo) return (s / lo) * 0.6; if (s >= hi) return 1; return 0.6 + 0.4 * ((s - lo) / (hi - lo)); }
+    function vpdFromTempRH(T, RH) { const es = 0.6108 * Math.exp((17.27 * T) / (T + 237.3)); return es * (1 - (RH || 0) / 100); }
+    function movingAvg(a, k = 3) { return a.map((_, i) => { let s = 0, c = 0; for (let j = 0; j < k; j++) { if (i - j >= 0) { s += a[i - j]; c++; } } return s / Math.max(1, c); }); }
+
+    function computePulseGaussian(rain, windowDays, threshold, lagMin, lagMax) {
+      const n = rain.length, trig = new Array(n).fill(0);
+      let last = -Infinity;
+      for (let i = 0; i < n; i++) {
+        const sum = rain.slice(Math.max(0, i - windowDays + 1), i + 1).reduce((a, b) => a + (b || 0), 0);
+        if (sum >= threshold) last = i;
+        const d = i - last;
+        if (d >= lagMin && d <= lagMax) {
+          const mid = (lagMin + lagMax) / 2, sigma = (lagMax - lagMin) / 4;
+          trig[i] = Math.exp(-0.5 * Math.pow((d - mid) / sigma, 2));
+        }
+      }
+      return trig;
+    }
+
+    function computeBaseProbabilities(dailyData, loc) {
+      const smax = loc.soilAcidity === 'acidofilo' ? SETTINGS.smi.smax.acid : (loc.soilAcidity === 'basofilo' ? SETTINGS.smi.smax.basic : SETTINGS.smi.smax.default);
+      const rain = dailyData.map(d => d.rain_for_day || 0);
+      const et0 = dailyData.map(d => d.avg_et0 || 0);
+      const tmed = dailyData.map(d => (d.temp_min + d.temp_max) / 2);
+      const rh = dailyData.map(d => d.avg_humidity || 0);
+      const alt = Number.isFinite(loc.altitude) ? loc.altitude : SETTINGS.base.alt.ref;
+
+      let S = smax * 0.5;
+      const smi = rain.map((r, i) => {
+        const eff = Math.min(r, 25) * 0.8;
+        S = clamp(S + eff - Math.max(et0[i], 0), 0, smax);
+        return S / smax;
+      });
+
+      const tCorr = tmed.map(T => T - SETTINGS.base.alt.lapse * (alt - SETTINGS.base.alt.ref));
+      const tCorr3 = movingAvg(tCorr, 3);
+      const vpd = tCorr.map((T, i) => vpdFromTempRH(T, rh[i]));
+
+      const trig15 = computePulseGaussian(rain, 2, SETTINGS.triggers.mm15.th, SETTINGS.triggers.mm15.lagMin, SETTINGS.triggers.mm15.lagMax);
+      const trig20 = computePulseGaussian(rain, 2, SETTINGS.triggers.mm20.th, SETTINGS.triggers.mm20.lagMin, SETTINGS.triggers.mm20.lagMax);
+      const trig25 = computePulseGaussian(rain, 2, SETTINGS.triggers.mm25.th, SETTINGS.triggers.mm25.lagMin, SETTINGS.triggers.mm25.lagMax);
+
+      const results = dailyData.map((d, i) => {
+        let sc = 0; const bdKeys = [];
+        if (smi[i] >= 0.7) { sc += 2.5; bdKeys.push('breakdown.soil_wet'); }
+        else if (smi[i] >= 0.5) { sc += 1.5; bdKeys.push('breakdown.soil_mid'); }
+        else if (smi[i] > 0.3) { sc += 0.5; bdKeys.push('breakdown.soil_dry'); }
+        else { bdKeys.push('breakdown.soil_dry_severe'); }
+
+        if (trig20[i] > 0) { sc += 0.8 * trig20[i]; bdKeys.push('breakdown.pulse_rain'); }
+
+        const T = tCorr3[i];
+        if (T >= SETTINGS.base.temp.optMin && T <= SETTINGS.base.temp.optMax) { sc += SETTINGS.base.temp.optPts; bdKeys.push('breakdown.temp_opt'); }
+        else if (T > SETTINGS.base.temp.heatThresh) { sc += SETTINGS.base.temp.heatPenalty; bdKeys.push('breakdown.heat_penalty'); }
+
+        const v = vpd[i];
+        if (v <= SETTINGS.base.vpd.lowThresh) { sc += 1.0; bdKeys.push('breakdown.vpd_low'); }
+        else if (v > SETTINGS.base.vpd.highThresh) { sc -= 0.8; bdKeys.push('breakdown.vpd_high'); }
+
+        let m = 1.0;
+        if (loc.soilAcidity === 'acidofilo') m *= 1.25;
+        if (loc.canopy === 'claro_trasmocho') m *= 1.20;
+        if (loc.canopy === 'sombrio_denso') m *= 0.70;
+        if (loc.ageClass === 'joven') m *= 0.40;
+        if (m !== 1.0) bdKeys.push('breakdown.habitat_mult');
+        sc *= m;
+
+        const p = 1 / (1 + Math.exp(-(sc - 5.0))) * 100;
+        const chance = p >= 70 ? 'Alta' : (p >= 45 ? 'Media' : 'Baja');
+        return { ...d, smi: smi[i], vpd: v, tmed: T, baseProb: clamp(p, 0, 100), chance, score: `${p.toFixed(1)}%`, score_breakdown: bdKeys };
+      });
+
+      return { series: { tCorr3, smi, vpd, trig15, trig20, trig25, rain }, daily: results };
+    }
+
+    /******************** MAPA ZONAL DE NAVARRA (A - S) & MYCOSILVA ********************/
+    const NAVARRA_ZONES = {
+      A: { code: 'A', nameES: 'Zona A: Baztán, Vera, Norte', nameEU: 'A Eremua: Baztan, Bera, Iparraldea', vegES: 'Caducifolios, alerces, coníferas de repoblación, pastizales. Clima atlántico muy húmedo.', vegEU: 'Hostoerorkorrak, larkiarratza, berrogeitzeko koniferak, larreak. Klima atlantiko oso hezea.', defaultHabitat: 'hayedo', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'cantharellus', 'boletus_aereus', 'clitocybe_nebularis'] },
+      B: { code: 'B', nameES: 'Zona B: Bértiz, Legate, Otxondo', nameEU: 'B Eremua: Bertiz, Legate, Otxondo', vegES: 'Hayedos atlánticos, robledales autóctonos y roble americano. Alta humedad marina.', vegEU: 'Atlantikoetako pago-basoak, bertako hariztiak eta roble amerikarra.', defaultHabitat: 'robledal_atlantico', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'boletus_aereus', 'cantharellus', 'amanita_caesarea'] },
+      C: { code: 'C', nameES: 'Zona C: Larraún', nameEU: 'C Eremua: Larraun', vegES: 'Hayedos húmedos, robledales y pastizales de vertiente atlántica.', vegEU: 'Pago-baso hezeak, hariztiak eta larre atlantikoak.', defaultHabitat: 'hayedo', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'hygrophorus_marzuolus', 'cortinarius_caperatus'] },
+      D: { code: 'D', nameES: 'Zona D: Basaburúa, Ultzama, Atez', nameEU: 'D Eremua: Basaburua, Ultzama, Atetz', vegES: 'Hayedos acidófilos con brezo/arándano y robledales pedunculados. Máxima producción micológica (Parque Micológico).', vegEU: 'Pago-baso azidozaleak txilar eta mirtiloekin. Ekoizpen mikologiko handiena (Parke Mikologikoa).', defaultHabitat: 'hayedo', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'boletus_aereus', 'cantharellus', 'hygrophorus_marzuolus', 'tricholoma_columbetta'] },
+      E: { code: 'E', nameES: 'Zona E: Quinto Real, Sorogain', nameEU: 'E Eremua: Kintoa, Sorogain', vegES: 'Hayedos pirenaicos de alta humedad, alerces y prados de montaña.', vegEU: 'Pirinioetako pago-basoak hezetasun handiarekin, larkiarratzak eta mendiko larreak.', defaultHabitat: 'hayedo', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'boletus_pinophilus', 'hygrophorus_marzuolus', 'hydnum_repandum'] },
+      F: { code: 'F', nameES: 'Zona F: Burguete, Roncesvalles, Irati, Remendía', nameEU: 'F Eremua: Auritz, Orreaga, Irati, Remendia', vegES: 'Grandes masas de hayedo pirenaico, pino abeto y prados de altitud. Clima frío-húmedo.', vegEU: 'Mendiko pago-baso zabalak, abetuak eta goi-mendiko larreak. Klima hotz-hezea.', defaultHabitat: 'hayedo', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'boletus_pinophilus', 'hygrophorus_marzuolus', 'cortinarius_caperatus', 'cantharellus'] },
+      G: { code: 'G', nameES: 'Zona G: Alto Belagua, Larra', nameEU: 'G Eremua: Belagua Gaina, Larra', vegES: 'Pinares de pino negro (Pinus uncinata), pino albar y pastos subalpinos sobre lapiaz.', vegEU: 'Pinu beltzaren pinudiak (Pinus uncinata), pinu gorriak eta goi-mendiko larreak.', defaultHabitat: 'pinar_silvestre', defaultSoil: 'basofilo', favSpecies: ['boletus_pinophilus', 'lactarius', 'hygrophorus_marzuolus'] },
+      H: { code: 'H', nameES: 'Zona H: Sierra de Aralar', nameEU: 'H Eremua: Aralar Mendilerroa', vegES: 'Hayedos húmedos sobre calizas, rasos y pastizales de alta montaña.', vegEU: 'Pago-baso hezeak kareharri gainean eta mendiko zelaiak.', defaultHabitat: 'hayedo', defaultSoil: 'basofilo', favSpecies: ['boletus_edulis', 'calocybe_gambosa', 'hygrophorus_marzuolus', 'clitocybe_nebularis'] },
+      I: { code: 'I', nameES: 'Zona I: Barranca - Burunda (Sakana)', nameEU: 'I Eremua: Sakana / Burunda', vegES: 'Hayedos de ladera y robledales atlánticos de fondo de valle.', vegEU: 'Mendiko pago-basoak eta ibarraldeko harizti atlantikoak.', defaultHabitat: 'robledal_atlantico', defaultSoil: 'acidofilo', favSpecies: ['boletus_edulis', 'boletus_aereus', 'cantharellus', 'neoboletus_erythropus'] },
+      J: { code: 'J', nameES: 'Zona J: Sierras de Urbasa, Andía y Lóquiz', nameEU: 'J Eremua: Urbasa, Andia eta Lokiz Mendilerroak', vegES: 'Mesetas de hayedo calcícola, rasos ganaderos y bosquetes de quejigo.', vegEU: 'Kare-pagoen goi-lautadak, abeltzaintzako zelaiak eta erkametzak.', defaultHabitat: 'hayedo', defaultSoil: 'basofilo', favSpecies: ['boletus_edulis', 'calocybe_gambosa', 'lepista_nuda', 'clitocybe_nebularis'] },
+      K: { code: 'K', nameES: 'Zona K: Valles Prepirenaicos (Urraules, Romanzado)', nameEU: 'K Eremua: Pirinioaurreko Ibarrak', vegES: 'Pinares de pino silvestre (Pinus sylvestris), quejigales y matorral submediterráneo.', vegEU: 'Pinu gorrien pinudiak, erkametzak eta azpimediterraneoko sastrakadiak.', defaultHabitat: 'pinar_silvestre', defaultSoil: 'basofilo', favSpecies: ['lactarius', 'craterellus_lutescens', 'tricholoma_portentosum', 'hydnum_repandum'] },
+      L: { code: 'L', nameES: 'Zona L: Valles Pirenaicos (Roncal y Salazar)', nameEU: 'L Eremua: Erronkari eta Zaraitzu Ibarrak', vegES: 'Extensos pinares de pino silvestre, hayedos pirenaicos y abetales.', vegEU: 'Pinu gorrien pinudi zabalak, Pirinioetako pago-basoak eta abetadiak.', defaultHabitat: 'pinar_silvestre', defaultSoil: 'acidofilo', favSpecies: ['lactarius', 'boletus_edulis', 'craterellus_lutescens', 'tricholoma_portentosum', 'hygrophorus_marzuolus'] },
+      M: { code: 'M', nameES: 'Zona M: Cuencas de Pamplona, Lumbier e Izaga', nameEU: 'M Eremua: Iruñerria, Irunberri eta Izaga', vegES: 'Quejigales, pinares de repoblación, hayedos secos y vegetación de ribera.', vegEU: 'Erkametzak, berrogeitzeko pinudiak, pago-baso lehorrak eta ibai-landaredia.', defaultHabitat: 'mixto_caducifolio', defaultSoil: 'basofilo', favSpecies: ['lactarius', 'tricholoma_terreum', 'calocybe_gambosa', 'marasmius_oreades'] },
+      N: { code: 'N', nameES: 'Zona N: Sierras de Illón y Leyre', nameEU: 'N Eremua: Illon eta Leire Mendilerroak', vegES: 'Pinares de pino silvestre, hayedos calcícolas y carrascales de montaña.', vegEU: 'Pinu gorrien pinudiak, kare-pagoak eta mendiko arte-sasiak.', defaultHabitat: 'pinar_silvestre', defaultSoil: 'basofilo', favSpecies: ['lactarius', 'craterellus_lutescens', 'lactarius_sanguifluus', 'tricholoma_terreum'] },
+      O: { code: 'O', nameES: 'Zona O: Valle de Lana y Sur de Lóquiz', nameEU: 'O Eremua: Lanako Harana eta Lokiz Hegoaldea', vegES: 'Carrascales mediterráneos (Quercus ilex), quejigales y matorral aromático.', vegEU: 'Mediterraneoko arte-sasiak (Quercus ilex), erkametzak eta sastrakadi usaintsuak.', defaultHabitat: 'carrascal', defaultSoil: 'basofilo', favSpecies: ['amanita_caesarea', 'boletus_aereus', 'pleurotus_eryngii', 'lactarius_sanguifluus'] },
+      P: { code: 'P', nameES: 'Zona P: Zona Media Occidental (Codés, Sierra del Perdón)', nameEU: 'P Eremua: Mendebaldeko Erdialdea (Kodes, Erreniega)', vegES: 'Carrascales, quejigales, matorrales y pinares repoblados.', vegEU: 'Arte-sasiak, erkametzak, sastrakadiak eta pinudiak.', defaultHabitat: 'carrascal', defaultSoil: 'basofilo', favSpecies: ['lactarius', 'pleurotus_eryngii', 'tricholoma_terreum', 'amanita_caesarea'] },
+      Q: { code: 'Q', nameES: 'Zona Q: Zona Media Oriental (Valdorba, Ujué)', nameEU: 'Q Eremua: Ekialdeko Erdialdea (Orbaibar, Uxue)', vegES: 'Carrascales mediterráneos, coscojares, pino carrasco y cultivos micológicos.', vegEU: 'Arte-sasi mediterraneoak, karraskilak, halepo pinua eta uzta-lurrak.', defaultHabitat: 'carrascal', defaultSoil: 'basofilo', favSpecies: ['lactarius_sanguifluus', 'pleurotus_eryngii', 'tricholoma_terreum', 'amanita_caesarea'] },
+      R: { code: 'R', nameES: 'Zona R: Sierra de Izco y Alaiz', nameEU: 'R Eremua: Izko eta Alaiz Mendilerroak', vegES: 'Pinares repoblados, hayedos de solana secos, quejigales y matorral.', vegEU: 'Berrogeitzeko pinudiak, egutera lehorreko pago-basoak eta erkametzak.', defaultHabitat: 'pinar_silvestre', defaultSoil: 'basofilo', favSpecies: ['lactarius', 'tricholoma_terreum', 'clitocybe_nebularis'] },
+      S: { code: 'S', nameES: 'Zona S: La Ribera (Bardenas, Carcastillo, Lerín)', nameEU: 'S Eremua: Erribera (Bardenak, Karkastulu, Lerin)', vegES: 'Pinares mediterráneos de pino carrasco (Pinus halepensis), coscojares, estepas y sotos de ribera.', vegEU: 'Halepo pinuaren pinudi mediterraneoak, karraskilak, estepak eta ibai-ertzeak.', defaultHabitat: 'carrascal', defaultSoil: 'basofilo', favSpecies: ['pleurotus_eryngii', 'lactarius_sanguifluus', 'tricholoma_terreum', 'morchella_conica'] }
+    };
+
+    function getNavarraZoneInfo(lat, lon) {
+      if (lat >= 43.10 && lon <= -1.45) { return lon < -1.60 ? NAVARRA_ZONES.A : NAVARRA_ZONES.B; }
+      if (lat >= 42.92 && lat < 43.12 && lon <= -1.35) {
+        if (lon < -1.85) return NAVARRA_ZONES.H;
+        if (lon < -1.70) return NAVARRA_ZONES.C;
+        if (lon < -1.50) return NAVARRA_ZONES.D;
+        return NAVARRA_ZONES.E;
+      }
+      if (lat >= 42.85 && lon > -1.35) {
+        if (lon > -0.95) return NAVARRA_ZONES.G;
+        if (lon > -1.15) return NAVARRA_ZONES.F;
+        return NAVARRA_ZONES.L;
+      }
+      if (lat >= 42.75 && lat < 42.95 && lon <= -1.80) { return lon < -2.00 ? NAVARRA_ZONES.I : NAVARRA_ZONES.J; }
+      if (lat >= 42.65 && lat < 42.88 && lon > -1.80 && lon <= -1.35) { return NAVARRA_ZONES.M; }
+      if (lat >= 42.65 && lat < 42.90 && lon > -1.35 && lon <= -0.90) { return lat > 42.75 ? NAVARRA_ZONES.K : NAVARRA_ZONES.N; }
+      if (lat >= 42.50 && lat < 42.75) {
+        if (lon < -2.00) return NAVARRA_ZONES.O;
+        if (lon < -1.65) return NAVARRA_ZONES.P;
+        if (lon < -1.40) return NAVARRA_ZONES.R;
+        return NAVARRA_ZONES.Q;
+      }
+      if (lat < 42.50) { return NAVARRA_ZONES.S; }
+      return NAVARRA_ZONES.D;
+    }
+
+    function computeSpeciesForLocation(loc, baseCtx) {
+      const zoneInfo = getNavarraZoneInfo(loc.lat, loc.lon);
+      loc.zone = zoneInfo.code;
+      loc.zoneInfo = zoneInfo;
+
+      const dd = baseCtx.daily;
+      loc.forecast = dd.map((d, i) => {
+        const out = { ...d };
+        const spProbs = {};
+        let sum = 0;
+        for (const key of Object.keys(SETTINGS.species)) {
+          const spS = SETTINGS.species[key];
+          const wT = Math.pow(triangleSuitability(d.tmed, [spS.temp.min, spS.temp.max]), 1.15);
+          const wSmi = Math.pow(smiSuitability(d.smi, [spS.smi.lo, spS.smi.hi]), 1.1);
+          const W = SETTINGS.triggers.weights[key] || { w15: 0.5, w20: 0.5, w25: 0.5 };
+          const wPulse = clamp(W.w15 * baseCtx.series.trig15[i] + W.w20 * baseCtx.series.trig20[i] + W.w25 * baseCtx.series.trig25[i], 0, 1);
+          
+          const xDOY = doy(d.date);
+          const wSeason1 = gauss(xDOY, spS.season.mu, spS.season.sigma);
+          const wSeason2 = (spS.season.mu2 && spS.season.sigma2) ? gauss(xDOY, spS.season.mu2, spS.season.sigma2) : 0;
+          const wSeason = Math.max(0.2, Math.max(wSeason1, wSeason2));
+
+          let wZone = 1.0;
+          if (zoneInfo.favSpecies && zoneInfo.favSpecies.includes(key)) {
+            wZone = 1.35;
+          }
+
+          const raw = wT * wSmi * (0.5 + 0.5 * wPulse) * wSeason * wZone;
+          spProbs[key] = raw;
+          sum += raw;
+        }
+        if (sum <= 0) sum = 1e-6;
+        const scaled = {};
+        for (const k of Object.keys(spProbs)) { scaled[k] = (spProbs[k] / sum) * d.baseProb; }
+        out.species = scaled;
+        out.top_species = Object.keys(scaled).sort((a, b) => scaled[b] - scaled[a])[0] || null;
+        return out;
+      });
+      return loc;
+    }
+
+    async function updateLocationData(loc) {
+      try {
+        const weatherData = await fetchWeather(loc.lat, loc.lon);
+        const altitude = await fetchAltitude(loc.lat, loc.lon);
+        const dailyData = processDailyData(weatherData);
+        loc.altitude = altitude;
+        const base = computeBaseProbabilities(dailyData, loc);
+        return computeSpeciesForLocation(loc, base);
+      } catch (err) {
+        console.error('Error loc:', loc.name, err);
+        return null;
+      }
+    }
+
+    /******************** SPECIES META & REPES ********************/
+    const SPECIES_META = {
+      boletus_aestivalis: { color: '#b45309', light: '#fef3c7' },
+      boletus_aereus: { color: '#451a03', light: '#f3e8ff' },
+      boletus_edulis: { color: '#047857', light: '#d1fae5' },
+      boletus_pinophilus: { color: '#9a3412', light: '#ffedd5' },
+      cantharellus: { color: '#ca8a04', light: '#fef9c3' },
+      lactarius: { color: '#b91c1c', light: '#fee2e2' },
+      lepista_nuda: { color: '#6d28d9', light: '#ede9fe' },
+      hydnum_repandum: { color: '#c2410c', light: '#ffedd5' },
+      amanita_caesarea: { color: '#ea580c', light: '#ffedd5' },
+      hygrophorus_marzuolus: { color: '#374151', light: '#f3f4f6' },
+      neoboletus_erythropus: { color: '#991b1b', light: '#fee2e2' },
+      leccinum_quercinum: { color: '#d97706', light: '#fef3c7' },
+      tricholoma_columbetta: { color: '#0284c7', light: '#e0f2fe' },
+      clitocybe_nebularis: { color: '#4b5563', light: '#f3f4f6' },
+      cortinarius_caperatus: { color: '#a16207', light: '#fef9c3' },
+      amanita_rubescens: { color: '#be123c', light: '#ffe4e6' },
+      pleurotus_eryngii: { color: '#854d0e', light: '#fef9c3' },
+      tricholoma_portentosum: { color: '#1e293b', light: '#e2e8f0' },
+      tricholoma_terreum: { color: '#334155', light: '#f1f5f9' },
+      marasmius_oreades: { color: '#d97706', light: '#fef3c7' },
+      morchella_conica: { color: '#78350f', light: '#fef3c7' },
+      craterellus_lutescens: { color: '#eab308', light: '#fef9c3' },
+      lactarius_sanguifluus: { color: '#9f1239', light: '#ffe4e6' },
+      calocybe_gambosa: { color: '#059669', light: '#d1fae5' }
+    };
+
+    const SPECIES_GUIDE = [
+      // MÁS FRECUENTES EN NAVARRA (MICOSYLVA / ULTZAMA)
+      { navarraFreq: true, key: 'boletus_edulis', nameES: 'Boletus edulis (Hongo blanco / Onddo zuri)', nameEU: 'Boletus edulis (Onddo zuria)', edible: 'Excelente', traitsES: ['Sombrero pardo avellana con margen blanquecino', 'Cutícula ligeramente viscosa en húmedo', 'Carne blanca inmutable (no azulea)'], traitsEU: ['Txano marroia ertza zurixkarekin', 'Kutikula likatsua hezetasunean', 'Haragi aldaezina (ez urdintzen)'], habitatES: 'Hayedos acidófilos (brezo/arándano) y pinares. Heliófilo (busca claros y bordes).', habitatEU: 'Pago-baso azidoak eta pinudiak. Argitasuna behar du (txlagunean).', confES: 'Tylopilus felleus (amargo, poros rosa).', confEU: 'Tylopilus felleus (mingotsa, poro arrosak).' },
+      { navarraFreq: true, key: 'boletus_aereus', nameES: 'Boletus aereus (Hongo negro / Onddo beltza)', nameEU: 'Boletus aereus (Onddo beltza)', edible: 'Excelente', traitsES: ['Sombrero pardo chocolate muy oscuro', 'Pie robusto con retículo fino', 'Termófilo y muy aromático'], traitsEU: ['Txano txokolate iluna', 'Zurtoin sendoa sare finarekin', 'Termofiloa eta usaintsua'], habitatES: 'Robledales atlánticos y hayedos de cotas bajas al final del verano.', habitatEU: 'Harizti atlantikoak eta behe-koretako pago-basoak uda amaieran.', confES: 'Boletus satanas (tóxico, poros rojos).', confEU: 'Boletus satanas (toxikoa, poro gorriak).' },
+      { navarraFreq: true, key: 'amanita_caesarea', nameES: 'Amanita caesarea (Seta de los Césares / Kuleto)', nameEU: 'Amanita caesarea (Kuletoa / Orontza)', edible: 'Excelente', traitsES: ['Sombrero rojo-anaranjado vivo', 'Láminas y pie amarillo dorado', 'Volva blanca amplia en forma de saco'], traitsEU: ['Txano gorri-laranja bizia', 'Orri eta zurtoin hori urreztatuak', 'Volva zuri zabala poltsa forman'], habitatES: 'Robledales atlánticos aclarados con mucho sol en verano-otoño.', habitatEU: 'Harizti argituak eguzki ugarirekin uda-udazkenean.', confES: 'Amanita muscaria (tóxica, láminas blancas y motas blancas).', confEU: 'Amanita muscaria (toxikoa, orri zuriak).' },
+      { navarraFreq: true, key: 'hygrophorus_marzuolus', nameES: 'Hygrophorus marzuolus (Seta de marzo / Marzoko ziza)', nameEU: 'Hygrophorus marzuolus (Marzoko ziza)', edible: 'Excelente', traitsES: ['Sombrero negruzco/gris ceniza', 'Láminas blanquecinas separadas y espesas', 'Aroma suave y carne consistente'], traitsEU: ['Txano beltzaxka/gris hautsa', 'Orri zurixka bereiziak eta lodikoak', 'Lurrin gozoa eta haragi trinkoa'], habitatES: 'Hayedos y robledales de montaña tras el deshielo (febrero a abril).', habitatEU: 'Pago-basoak eta mendiko hariztiak (otsailetik apirilera).', confES: 'Sin confusión peligrosa en su época.', confEU: 'Ez dago antzekotasun arriskutsurik bere garaian.' },
+      { navarraFreq: true, key: 'neoboletus_erythropus', nameES: 'Neoboletus erythropus (Boleto de pie rojo / Onddo hankagorria)', nameEU: 'Neoboletus erythropus (Onddo hankagorria)', edible: 'Buen comestible (cocinado)', traitsES: ['Sombrero pardo oscuro terciopelado', 'Poros rojo intenso y pie punteado de rojo', 'Azulea de forma instantánea e intensa al corte'], traitsEU: ['Txano marroi ilun belusatua', 'Poro gorri biziak eta zurtoin gorrizta', 'Urdintzen da berehala ebakitzean'], habitatES: 'Hayedos y robledales desde mediados de agosto a noviembre.', habitatEU: 'Pago-basoak eta hariztiak abuztutik azaroera.', confES: 'Boletus satanas (tóxico, sombrero blanquecino y olor desagradable).', confEU: 'Boletus satanas (toxikoa, txano zurixka).' },
+      { navarraFreq: true, key: 'leccinum_quercinum', nameES: 'Leccinum quercinum (Hongo de roble / Kuku-perretxikoa)', nameEU: 'Leccinum quercinum (Kuku-perretxikoa)', edible: 'Buen comestible', traitsES: ['Sombrero rojo ladrillo anaranjado', 'Pie esbelto cubierto de escamitas negras', 'Carne firme que ennegrece ligeramente al corte'], traitsEU: ['Txano gorri adreilu laranjatua', 'Zurtoin luzea ezkata beltzekin', 'Haragi trinkoa ebakitzean beltzitzen dena'], habitatES: 'Estrechamente ligado a robledales atlánticos en septiembre-noviembre.', habitatEU: 'Hariztiei estuki lotuta iraila eta azaroa artean.', confES: 'Pocas confusiones en robledal.', confEU: 'Antzekotasun gutxi hariztietan.' },
+      { navarraFreq: true, key: 'cantharellus', nameES: 'Cantharellus cibarius (Rebozuelo / Ziza hori)', nameEU: 'Cantharellus cibarius (Ziza horia / Kantarela)', edible: 'Muy bueno', traitsES: ['Pliegues decurrentes (no láminas verdaderas)', 'Olor característico a albaricoque', 'Color amarillo huevo uniforme'], traitsEU: ['Tolestura beherakorrak (ez orri benetakoak)', 'Abrikot usain berezia', 'Hori uniformea'], habitatES: 'Hayedos y castañales con alta humedad ambiental.', habitatEU: 'Pago-basoak eta gaztainondoak hezetasun handiarekin.', confES: 'Hygrophoropsis aurantiaca (falso rebozuelo).', confEU: 'Hygrophoropsis aurantiaca (falsa kantarela).' },
+      { navarraFreq: true, key: 'lactarius', nameES: 'Lactarius deliciosus (Níscalo / Niskaloa)', nameEU: 'Lactarius deliciosus (Niskaloa)', edible: 'Bueno', traitsES: ['Látex color naranja vivo al corte', 'Zonas concéntricas anaranjadas en el sombrero', 'Verdosea con el roce o tiempo'], traitsEU: ['Esne laranja bizia ebakitzean', 'Zirkulu kontzentrikoak txanoan', 'Berdetzen da ukitzean'], habitatES: 'Pinares de pino silvestre (Pinus sylvestris).', habitatEU: 'Pinu gorrien pinudiak.', confES: 'Lactarius torminosus (tóxico, rosa muy peludo).', confEU: 'Lactarius torminosus (toxikoa, arrosa iletsua).' },
+      { navarraFreq: true, key: 'clitocybe_nebularis', nameES: 'Clitocybe nebularis (Pardilla / Ilarraka)', nameEU: 'Clitocybe nebularis (Ilarraka)', edible: 'Buen comestible (escaldar)', traitsES: ['Sombrero grisáceo-blanquecino grande', 'Láminas decurrentes apretadas', 'Olor fuerte muy característico'], traitsEU: ['Txano gris-zurixka handia', 'Orri beherakor estutuak', 'Usain indartsu berezia'], habitatES: 'Crece en grandes corros o hileras en hayedos y robledales con mucha hojarasca.', habitatEU: 'Zirkulu handietan hazten da pago-baso eta hariztietan.', confES: 'Entoloma sinuatum (tóxico muy grave, láminas rosa en madurez).', confEU: 'Entoloma sinuatum (oso toxikoa, orri arrosak).' },
+      { navarraFreq: true, key: 'tricholoma_columbetta', nameES: 'Tricholoma columbetta (Palometa / Ziza zuria)', nameEU: 'Tricholoma columbetta (Ziza zuria / Palometa)', edible: 'Buen comestible', traitsES: ['Color blanco puro en todas sus partes', 'Sombrero sedoso y láminas escotadas', 'Tono azulado/rosado frecuente en la base del pie'], traitsEU: ['Kolore zuri purua parte guztietan', 'Txano zetatsua eta orri ebakiak', 'Urdinxka oinarrian'], habitatES: 'Típica de hayedos en otoño (septiembre a noviembre). Fácil de detectar.', habitatEU: 'Pago-basoetako ohikoa udazkenean.', confES: 'Amanita phalloides var. alba (mortal, presenta volva y anillo).', confEU: 'Amanita phalloides alba (hilgarria, volva eta eraztuna ditu).' },
+      { navarraFreq: true, key: 'cortinarius_caperatus', nameES: 'Cortinarius caperatus (Rozites / Cortinario arrugado)', nameEU: 'Cortinarius caperatus (Rozites / Kortinario zimurtua)', edible: 'Buen comestible', traitsES: ['Sombrero color miel de aspecto pruinoso/satinado', 'Anillo membranoso persistente en el pie', 'Láminas pardo café en madurez'], traitsEU: ['Txano ezti kolorekoa satinatua', 'Membrana eraztuna zurtoinean', 'Orri marroi kafeak'], habitatES: 'Muy abundante en hayedos en grandes grupos micorrízicos.', habitatEU: 'Oso ugaria pago-basoetan talde handietan.', confES: 'Especies de Cortinarius tóxicas (tienen cortina y no anillo membranoso).', confEU: 'Cortinarius toxikoak (kortina dute eta ez eraztuna).' },
+      { navarraFreq: true, key: 'amanita_rubescens', nameES: 'Amanita rubescens (Amanita enrojeciente / Gibelgorri kuleto gorri)', nameEU: 'Amanita rubescens (Gibelgorri kuleto gorria)', edible: 'Comestible (cocinada)', traitsES: ['Tono vinoso-rosado en heridas y al corte', 'Anillo amplio estriado', 'Verrugas grisáceas en el sombrero'], traitsEU: ['Zaurietan arrosa-ardo kolorea', 'Eraztun zabal ildaskatua', 'Ezkata grisaxkak txanoan'], habitatES: 'Hayedos y robledales durante verano y otoño.', habitatEU: 'Pago-baso eta hariztietan uda eta udazkenean.', confES: 'Amanita pantherina (tóxica grave, carne inmutable y anillo no estriado).', confEU: 'Amanita pantherina (oso toxikoa, haragi aldaezina).' },
+      
+      // CESTA Y SETAS - GUÍA GENERAL ADICIONAL
+      { navarraFreq: false, key: 'pleurotus_eryngii', nameES: 'Pleurotus eryngii (Seta de cardo / Eringio-ziza)', nameEU: 'Pleurotus eryngii (Eringio-ziza / Seta de cardo)', edible: 'Excelente', traitsES: ['Sombrero pardo altopardo con láminas decurrentes', 'Pie excéntrico y carne blanca elástica', 'Crece ligada a raíces de cardo cuco'], traitsEU: ['Txano marroia orri beherakarrekin', 'Zurtoin exzentrikoa eta haragi zuria', 'Txilardietan hazten da cardo sustraiei lotuta'], habitatES: 'Prados de montaña, pastizales de paramera en primavera y otoño.', habitatEU: 'Mendiko larreetan udaberri eta udazkenean.', confES: 'Pleurotus ostreatus (crece en tocones de madera).', confEU: 'Pleurotus ostreatus (zurezko enborretan hazten da).' },
+      { navarraFreq: false, key: 'tricholoma_portentosum', nameES: 'Tricholoma portentosum (Capuchina / Ziza kotiola)', nameEU: 'Tricholoma portentosum (Ziza kotiola / Capuchina)', edible: 'Excelente', traitsES: ['Sombrero gris oscuro viscoso con reflejos amarillentos', 'Pie blanco con tonos amarillo-limón', 'Carne con aroma harinoso agradable'], traitsEU: ['Txano gris ilun likatsua distira horiekin', 'Zurtoin zuria hori-limoi tonekin', 'Irin aroma atsegineko haragia'], habitatES: 'Pinares de pino silvestre en otoño avanzado tras las primeras heladas.', habitatEU: 'Pinu gorrien pinudiak udazken amaieran izozte ondoren.', confES: 'Tricholoma josserandii (tóxica grave, sin reflejos amarillos).', confEU: 'Tricholoma josserandii (oso toxikoa, distira horirik gabe).' },
+      { navarraFreq: false, key: 'tricholoma_terreum', nameES: 'Tricholoma terreum (Negrilla / Fredolic / Ziza beltza)', nameEU: 'Tricholoma terreum (Ziza beltza / Fredolic)', edible: 'Buen comestible', traitsES: ['Sombrero gris ratón afelpado/escamoso', 'Pie frágil y láminas gris ceniza', 'Carne inodora y frágil'], traitsEU: ['Txano gris sague belusatua', 'Zurtoin ahula eta orri grisak', 'Usainik gabeko haragi ahula'], habitatES: 'Muy abundante en pinares calcáreos al final del otoño e invierno.', habitatEU: 'Oso ugaria pinudietan udazken amaiera eta neguan.', confES: 'Tricholoma pardinum (tóxico grave, mucho más grande y robusto).', confEU: 'Tricholoma pardinum (oso toxikoa, askoz handiagoa).' },
+      { navarraFreq: false, key: 'marasmius_oreades', nameES: 'Marasmius oreades (Senderuela / Karratxila)', nameEU: 'Marasmius oreades (Karratxila / Senderuela)', edible: 'Excelente', traitsES: ['Sombrero crema avellana con mamelón', 'Pie elástico indestructible al retorcer', 'Olor agradable a almendras amargas'], traitsEU: ['Txano krema marroia mamelonoarekin', 'Zurtoin elastiko hautsezina bihurritzean', 'Almendra mingots usain atsegina'], habitatES: 'Crece en corros de brujas en prados y praderas tras lluvias templadas.', habitatEU: 'Larre eta zelaiean zirkuluetan euri epelen ondoren.', confES: 'Clitocybe rivulosa / dealbata (tóxicas mortales, láminas decurrentes).', confEU: 'Clitocybe dealbata (hilgarria, orri beherakorrak).' },
+      { navarraFreq: false, key: 'morchella_conica', nameES: 'Morchella conica (Colmenilla / Kuku-ziza)', nameEU: 'Morchella conica (Kuku-ziza / Colmenilla)', edible: 'Excelente (cocinada)', traitsES: ['Sombrero cónico alveolado en panal', 'Pie y sombrero completamente huecos', 'Fructificación primaveral exclusiva'], traitsEU: ['Txano koniko hunazko albeoluekin', 'Zurtoina eta txanoa guztiz hutsak', 'Udaberriko fructifikazio bakarra'], habitatES: 'Bosques de ribeira, fresnedales y quemados en primavera (marzo-mayo).', habitatEU: 'Errekasto basoetan eta udaberriko erretako eremuetan.', confES: 'Gyromitra esculenta (tóxica mortal, sombrero con forma de cerebro).', confEU: 'Gyromitra esculenta (hilgarria, garun formako txanoa).' },
+      { navarraFreq: false, key: 'craterellus_lutescens', nameES: 'Craterellus lutescens (Angula de monte / Camagroc / Mendi-angula)', nameEU: 'Craterellus lutescens (Mendi-angula / Camagroc)', edible: 'Excelente', traitsES: ['Sombrero afelpado pardo anaranjado en embudo', 'Himenio liso o veintreado amarillo-naranja vivo', 'Pie hueco de color amarillo intenso'], traitsEU: ['Txano belusatu laranja-marroia iturri forman', 'Himenio leuna edo hori-laranja bizia', 'Zurtoin hutsa hori indartsua'], habitatES: 'Pinares húmedos de pino silvestre entre el musgo al final del otoño.', habitatEU: 'Pinudi hezeak samatze artean udazken amaieran.', confES: 'Pocas confusiones peligrosas.', confEU: 'Antzekotasun arriskutsu gutxi.' },
+      { navarraFreq: false, key: 'lactarius_sanguifluus', nameES: 'Lactarius sanguifluus (Níscalo de sangre / Odol-niskaloa)', nameEU: 'Lactarius sanguifluus (Odol-niskaloa / Níscalo de sangre)', edible: 'Excelente', traitsES: ['Látex color rojo vinoso púrpura al corte', 'Carne compacta muy sabrosa', 'Sombrero anaranjado con tonos verdosos'], traitsEU: ['Esne gorri ardo-morea ebakitzean', 'Haragi trinkoa oso gozoa', 'Txano laranjatua berdetutako tonekin'], habitatES: 'Pinares soleados en suelos calizos de clima mediterráneo/submediterráneo.', habitatEU: 'Pinudi eguzkitsuetan lur karedunetan.', confES: 'Lactarius deliciosus (látex naranja, también comestible).', confEU: 'Lactarius deliciosus (esne laranja, jangarria ere).' },
+      { navarraFreq: false, key: 'calocybe_gambosa', nameES: 'Calocybe gambosa (Seta de San Juan / Perretxikoa)', nameEU: 'Calocybe gambosa (Perretxikoa / Udaberriko ziza)', edible: 'Excelente', traitsES: ['Sombrero grueso crema/blanquecino', 'Carne compacta con fuerte olor harinoso', 'Fructificación en prados de primavera (abril-mayo)'], traitsEU: ['Txano lodi krema/zurixka', 'Haragi trinkoa irin usain indartsuarekin', 'Mendiko larreetan udaberrian'], habitatES: 'Prados de montaña, brezales y espinos en primavera.', habitatEU: 'Mendiko larreetan, txilardietan eta elorrietan udaberrian.', confES: 'Entoloma sinuatum (tóxico grave, fructifica en otoño en bosque).', confEU: 'Entoloma sinuatum (oso toxikoa, udazkenean basoan).' }
+    ];
+
+    const RECIPES_DATA = [
+      { titleES: "Boletus aereus a la plancha con yema de huevo", titleEU: "Onddo beltza plantxan baserriko arrautzarekin", time: "15 min", species: "Boletus gr. edulis", prepES: "Laminar el boletus en cortes de 4mm. Saltear a fuego vivo con unas gotas de aceite de oliva virgen extra durante 2 min por lado. Servir caliente con sal en escamas y una yema de huevo de caserío cruda encima para mezclar.", prepEU: "Ebaki onddoa 4mm-ko xaflatandik. Gaineratu zartaginian su bizian oliba olio tanta batzuekin 2 minutu alde bakoitzetik. Zerbitzatu beroa gatz katakizunez eta baserriko arrautzaren gorringoarekin.", presES: "Conservación: Salteados y congelados al vacío o deshidratados en láminas.", presEU: "Kontserbazioa: Zartaginian pasata eta hutsean izoztuta edo lehorgarrian." },
+      { titleES: "Revuelto tradicional de Perretxikos de Orduña/Ultzama", titleEU: "Perretxiko nahaski tradizionala", time: "10 min", species: "Calocybe gambosa", prepES: "Trocear los perretxikos a mano (nunca con cuchillo). Pochar en sartén con muy poco aceite a fuego suave. Cuando suelten el agua, añadir huevos batidos suavemente y retirar del fuego antes de que cuaje totalmente.", prepEU: "Zatitu perretxikoak eskuz (inoiz ez labanaz). Zartaginian pasatu olio gutxirekin su leunean. Arrautzak gehitu eta sutik kendu guztiz mamitu aurretik.", presES: "Conservación: Consumo fresco preferente.", presEU: "Kontserbazioa: Freskoa kontsumitu azkar." },
+      { titleES: "Carpaccio de Amanita caesarea (Kuleto) con aceite y virutas de queso", titleEU: "Kuleto carpaccioa olioa eta gazta zatiekin", time: "10 min", species: "Amanita caesarea", prepES: "Laminar finísimamente ejemplares cerrados en huevo. Pincelar con aceite de oliva virgen extra, unas gotas de limón, sal de Añana y virutas de queso Idiazabal curado.", prepEU: "Ebaki oso mehe kuleto gazteak. Pintzelatu oliba olioarekin, limoi tanta batzuekin, gatza eta Idiazabal gazta zatiekin.", presES: "Conservación: Consumo en crudo e inmediato.", presEU: "Kontserbazioa: Garbi eta berehala kontsumitu." },
+      { titleES: "Guiso de Angulas de monte (Craterellus lutescens) con patatas", titleEU: "Mendi-angula eta patata gisatu tradizionala", time: "30 min", species: "Craterellus lutescens", prepES: "Refrito de ajo y cebolla pochadita. Añadir las angulas de monte salteadas y patatas troceadas en chascado. Cubrir con caldo de verduras suave y cocinar 20 min hasta tiernas.", prepEU: "Baratxuri eta tipula gorritua. Gaineratu mendi-angulak eta patata zatituak. Estali barazki zoparekin eta irakin 20 minutu.", presES: "Conservación: Excelente para desecar en deshidratador.", presEU: "Kontserbazioa: Bikaina lehorgarrian lehortzeko." }
+    ];
+
+    /******************** RENDER PREDICCIÓN & GRID ********************/
+    function renderLocationCard(loc) {
+      const today = new Date().toISOString().slice(0, 10);
+      const todayForecast = loc.forecast.find(d => d.date === today) || loc.forecast[0] || { chance: 'Baja', score: '0%' };
+      const cardChanceClass = `card-chance-${todayForecast.chance}`;
+      const slug = loc.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const cid = `chart-${slug}`;
+      const speciesCid = `species-${slug}`;
+
+      const card = document.createElement('div');
+      card.className = `bg-white shadow-xl rounded-2xl overflow-hidden p-5 transition transform hover:-translate-y-1 ${cardChanceClass}`;
+      card.dataset.chance = todayForecast.chance;
+      card.dataset.name = loc.name;
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <h4 class="text-xl font-bold text-gray-900">${loc.name}</h4>
+              <span class="inline-block px-2.5 py-0.5 bg-emerald-100 text-emerald-900 text-[11px] font-bold rounded-full border border-emerald-200 shadow-sm">🌲 ${loc.zoneInfo ? (getLang() === 'eu' ? loc.zoneInfo.nameEU : loc.zoneInfo.nameES) : 'Navarra'}</span>
+            </div>
+            <div class="text-xs text-gray-600 font-medium">${Number(loc.lat).toFixed(4)}, ${Number(loc.lon).toFixed(4)} ${loc.altitude ? `· ${Math.round(loc.altitude)}m` : ''} · ${loc.zoneInfo ? (getLang() === 'eu' ? loc.zoneInfo.vegEU : loc.zoneInfo.vegES) : ''}</div>
+          </div>
+          <button class="remove-loc-btn text-gray-400 hover:text-red-600 p-1" data-name="${loc.name}" title="Eliminar">🗑️</button>
+        </div>
+
+        <div class="w-full h-44 mb-3"><canvas id="${cid}"></canvas></div>
+
+        <div class="mb-4">
+          <h5 class="font-bold text-xs text-gray-700 mb-1" data-i18n="speciesTitle">${t('speciesTitle')}</h5>
+          <div class="w-full h-36"><canvas id="${speciesCid}"></canvas></div>
+        </div>
+
+        <div class="border-t border-gray-200/60 pt-3">
+          <h5 class="font-bold text-xs text-gray-800 mb-2">${t('forecast7')}</h5>
+          <ul class="space-y-1.5 text-xs">
+            ${loc.forecast.slice(0, 7).map((day, idx) => {
+              const topK = day.top_species;
+              const meta = topK ? SPECIES_META[topK] : null;
+              const chip = meta ? `<span class="chip" style="background:${meta.light}; color:${meta.color}">● ${SETTINGS.species[topK]?.label.split('(')[0]}</span>` : '';
+              const chanceClass = day.chance === 'Alta' ? 'bg-green-600 text-white' : (day.chance === 'Media' ? 'bg-amber-500 text-white' : 'bg-red-500 text-white');
+              return `
+                <li class="flex flex-col border-b border-gray-100 pb-1.5 last:border-b-0">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-bold text-gray-700">${fmtWeekdayShort(day.date)}</span>
+                      <span class="font-medium text-gray-600">${day.temp_min.toFixed(0)}°-${day.temp_max.toFixed(0)}°C · ${day.rain_for_day.toFixed(1)}mm</span>
+                      ${chip}
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="px-2 py-0.5 font-bold rounded-full text-[10px] ${chanceClass}">${t(`chanceMap.${day.chance}`)}</span>
+                      <button class="toggle-bd-btn text-gray-400 hover:text-green-700 text-sm" data-target="bd-${slug}-${idx}">ℹ️</button>
+                    </div>
+                  </div>
+                  <div id="bd-${slug}-${idx}" class="hidden text-[11px] bg-green-50/80 p-2 rounded-lg mt-1 space-y-1">
+                    <p class="font-bold text-green-900">${t('score')}: ${day.score}</p>
+                    <ul class="list-disc list-inside text-gray-700 space-y-0.5">
+                      ${day.score_breakdown.map(k => `<li>${t(k)}</li>`).join('')}
+                    </ul>
+                  </div>
+                </li>`;
+            }).join('')}
+          </ul>
+        </div>
+      `;
+
+      document.getElementById('grid').appendChild(card);
+
+      if (chartInstances[cid]) chartInstances[cid].destroy();
+      if (chartInstances[speciesCid]) chartInstances[speciesCid].destroy();
+
+      // Chart 1: Histórico Lluvia/Temp/SMI
+      const histData = loc.forecast.slice(0, 14);
+      chartInstances[cid] = new Chart(document.getElementById(cid).getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: histData.map(d => fmtDayMonthShort(d.date)),
+          datasets: [
+            { type: 'bar', label: 'Lluvia (mm)', data: histData.map(d => d.rain_for_day), backgroundColor: 'rgba(59, 130, 246, 0.4)', yAxisID: 'yRain' },
+            { type: 'line', label: 'Temp. (°C)', data: histData.map(d => d.tmed), borderColor: '#ef4444', borderWidth: 2, pointRadius: 1, yAxisID: 'yTemp' },
+            { type: 'line', label: 'SMI (%)', data: histData.map(d => d.smi * 100), borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.15)', fill: 'start', pointRadius: 0, yAxisID: 'ySmi' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { yTemp: { display: false }, yRain: { display: false }, ySmi: { display: false, min: 0, max: 100 } }
+        }
+      });
+
+      // Chart 2: Barras Apiladas por Especie
+      const next7 = loc.forecast.slice(0, 7);
+      const spKeys = Object.keys(SETTINGS.species);
+      const stackedDs = spKeys.map(k => ({
+        label: SETTINGS.species[k].label,
+        data: next7.map(d => d.species?.[k] || 0),
+        backgroundColor: SPECIES_META[k]?.color || '#6b7280',
+        stack: 'sp'
+      }));
+
+      chartInstances[speciesCid] = new Chart(document.getElementById(speciesCid).getContext('2d'), {
+        type: 'bar',
+        data: { labels: next7.map(d => fmtWeekdayShort(d.date).split(' ')[0]), datasets: stackedDs },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { stacked: true }, y: { stacked: true, max: 100, display: false } }
+        }
+      });
+
+      card.querySelector('.remove-loc-btn').onclick = (e) => {
+        const name = e.currentTarget.dataset.name;
+        LOCATIONS = LOCATIONS.filter(l => l.name !== name);
+        allForecastData = allForecastData.filter(l => l.name !== name);
+        localStorage.setItem('zizak_locations', JSON.stringify(LOCATIONS));
+        refreshGrid();
+        updateMapMarkers();
+      };
+    }
+
+    function refreshGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const today = new Date().toISOString().slice(0, 10);
+      const filtered = allForecastData.filter(loc => {
+        const todayF = loc.forecast.find(d => d.date === today) || loc.forecast[0];
+        return currentFilter === 'all' || todayF?.chance === currentFilter;
+      });
+
+      if (allForecastData.length === 0) {
+        document.getElementById('welcome-message').classList.remove('hidden');
+      } else {
+        document.getElementById('welcome-message').classList.add('hidden');
+        filtered.sort((a, b) => {
+          if (currentSort === 'chance') {
+            const order = { Alta: 0, Media: 1, Baja: 2 };
+            const aC = a.forecast[0]?.chance || 'Baja';
+            const bC = b.forecast[0]?.chance || 'Baja';
+            return (order[aC] - order[bC]) || a.name.localeCompare(b.name);
+          }
+          return a.name.localeCompare(b.name);
+        }).forEach(renderLocationCard);
+      }
+    }
+
+    async function loadAllLocations() {
+      document.getElementById('loading-message').classList.remove('hidden');
+      const res = await Promise.all(LOCATIONS.map(updateLocationData));
+      allForecastData = res.filter(l => l !== null);
+      document.getElementById('loading-message').classList.add('hidden');
+      refreshGrid();
+      updateMapMarkers();
+    }
+
+    /******************** MAPA INTERACTIVO (LEAFLET & CAPA A-S) ********************/
+    let map = null;
+    let mapMarkers = [];
+    let imageOverlay = null;
+
+    function initMap() {
+      if (map) return;
+      map = L.map('map').setView([42.69, -1.64], 9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      const bounds = [[41.90, -2.50], [43.35, -0.72]];
+      imageOverlay = L.imageOverlay('A-Mapa_zonas_navarra.jpg', bounds, { opacity: 0.6 }).addTo(map);
+
+      const slider = document.getElementById('map-opacity-slider');
+      const badge = document.getElementById('opacity-val-badge');
+      if (slider) {
+        slider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value) / 100;
+          if (imageOverlay) imageOverlay.setOpacity(val);
+          if (badge) badge.textContent = `${e.target.value}%`;
+        });
+      }
+
+      map.on('click', async (e) => {
+        const { lat, lng } = e.latlng;
+        const zoneInfo = getNavarraZoneInfo(lat, lng);
+        const pop = L.popup().setLatLng(e.latlng).setContent(`<div class="p-2 text-xs"><b>Analizando punto...</b> <span class="loading-spinner inline-block ml-1"></span></div>`).openOn(map);
+        try {
+          const altitude = await fetchAltitude(lat, lng);
+          const tempLoc = { name: `Punto (${lat.toFixed(3)}, ${lng.toFixed(3)})`, lat, lon: lng, altitude, habitat: zoneInfo.defaultHabitat || 'hayedo', canopy: 'claro_trasmocho', ageClass: 'maduro', soilAcidity: zoneInfo.defaultSoil || 'acidofilo' };
+          const res = await updateLocationData(tempLoc);
+          const todayF = res.forecast[0];
+          const lang = getLang();
+          const zName = lang === 'eu' ? zoneInfo.nameEU : zoneInfo.nameES;
+          const zVeg = lang === 'eu' ? zoneInfo.vegEU : zoneInfo.vegES;
+          
+          pop.setContent(`
+            <div class="p-2.5 space-y-2 text-xs max-w-[240px]">
+              <h4 class="font-bold text-sm text-green-900 border-b border-gray-100 pb-1">${res.name}</h4>
+              <div class="bg-emerald-50 p-2 rounded border border-emerald-200 space-y-1 text-[11px]">
+                <p class="font-bold text-emerald-900">🌲 ${zName}</p>
+                <p class="text-emerald-800">${zVeg}</p>
+              </div>
+              <p><b>Altitud:</b> ${Math.round(altitude)}m</p>
+              <p><b>Probabilidad Fructificación:</b> <span class="font-bold text-emerald-700">${todayF.score} (${t(`chanceMap.${todayF.chance}`)})</span></p>
+              <button onclick="addMapPointToLocations(${lat}, ${lng}, ${altitude})" class="w-full bg-emerald-700 text-white font-bold py-1.5 px-2 rounded hover:bg-emerald-800 shadow-sm transition">
+                ➕ ${lang === 'eu' ? 'Gehitu nire lekuetara' : 'Añadir a Mis Lugares'}
+              </button>
+            </div>
+          `);
+        } catch (_) {
+          pop.setContent(`<div class="p-2 text-xs text-red-600">Error al analizar las coordenadas.</div>`);
+        }
+      });
+    }
+
+    window.addMapPointToLocations = async (lat, lon, alt) => {
+      const name = prompt(getLang() === 'eu' ? 'Idatzi lekuaren izena:' : 'Escribe el nombre del paraje:', `Paraje (${lat.toFixed(3)}, ${lon.toFixed(3)})`);
+      if (!name) return;
+      const newLoc = { name, lat, lon, altitude: alt, habitat: 'hayedo', canopy: 'claro_trasmocho', ageClass: 'maduro', soilAcidity: 'acidofilo' };
+      LOCATIONS.push(newLoc);
+      localStorage.setItem('zizak_locations', JSON.stringify(LOCATIONS));
+      showNotification('Ubicación añadida correctamente', 'info');
+      await loadAllLocations();
+    };
+
+    function updateMapMarkers() {
+      if (!map) return;
+      mapMarkers.forEach(m => map.removeLayer(m));
+      mapMarkers = [];
+      allForecastData.forEach(loc => {
+        const todayF = loc.forecast[0] || { chance: 'Baja' };
+        const color = todayF.chance === 'Alta' ? '#10b981' : (todayF.chance === 'Media' ? '#f59e0b' : '#ef4444');
+        const marker = L.circleMarker([loc.lat, loc.lon], { radius: 10, fillColor: color, color: '#ffffff', weight: 2, fillOpacity: 0.85 }).addTo(map);
+        marker.bindPopup(`
+          <div class="p-2 text-xs space-y-1">
+            <h4 class="font-bold text-sm text-green-900">${loc.name}</h4>
+            <p>Probabilidad: <b>${todayF.score} (${t(`chanceMap.${todayF.chance}`)})</b></p>
+          </div>
+        `);
+        mapMarkers.push(marker);
+      });
+    }
+
+    /******************** GUÍA & RECETAS ********************/
+    function renderGuideAndRecipes() {
+      const gGrid = document.getElementById('guide-grid');
+      const rGrid = document.getElementById('recipes-grid');
+      const q = (document.getElementById('guide-search').value || '').toLowerCase();
+
+      const lang = getLang();
+      gGrid.innerHTML = SPECIES_GUIDE.filter(s => !q || s.nameES.toLowerCase().includes(q) || s.nameEU.toLowerCase().includes(q)).map(s => {
+        const name = lang === 'eu' ? s.nameEU : s.nameES;
+        const traits = lang === 'eu' ? s.traitsEU : s.traitsES;
+        const habitat = lang === 'eu' ? s.habitatEU : s.habitatES;
+        const conf = lang === 'eu' ? s.confEU : s.confES;
+        const badge = s.navarraFreq ? 
+          `<span class="inline-block px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-full mb-3 mr-2">📌 ${lang === 'eu' ? 'Nafarroan maizagoak' : 'Más frecuentes en Navarra'}</span>` : 
+          `<span class="inline-block px-2.5 py-0.5 bg-blue-100 text-blue-800 text-[11px] font-bold rounded-full mb-3 mr-2">🍄 ${lang === 'eu' ? 'Gida Orokorra' : 'Guía General (Cesta y Setas)'}</span>`;
+        return `
+          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+            <h4 class="font-bold text-base text-green-900 mb-1">${name}</h4>
+            <div class="flex flex-wrap items-center">
+              ${badge}
+              <span class="inline-block px-2.5 py-0.5 bg-gray-100 text-gray-800 text-[11px] font-bold rounded-full mb-3">${s.edible}</span>
+            </div>
+            <div class="space-y-2 text-xs text-gray-700">
+              <p><b>${t('guide.traits')}:</b></p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1">${traits.map(t => `<li>${t}</li>`).join('')}</ul>
+              <p><b>${t('guide.habitat')}:</b> ${habitat}</p>
+              <p class="text-red-700"><b>${t('guide.confusions')}:</b> ${conf}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      rGrid.innerHTML = RECIPES_DATA.map(r => {
+        const title = lang === 'eu' ? r.titleEU : r.titleES;
+        const prep = lang === 'eu' ? r.prepEU : r.prepES;
+        const pres = lang === 'eu' ? r.presEU : r.presES;
+        return `
+          <div class="bg-amber-50/50 p-5 rounded-2xl border border-amber-200 shadow-sm">
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="font-bold text-base text-amber-900">${title}</h4>
+              <span class="text-xs bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold">${r.time}</span>
+            </div>
+            <p class="text-xs font-semibold text-amber-800 mb-3">🍄 ${r.species}</p>
+            <div class="space-y-2 text-xs text-gray-700">
+              <p><b>${t('recipes.prep')}:</b> ${prep}</p>
+              <p class="text-emerald-800 font-medium"><b>${t('recipes.preservation')}:</b> ${pres}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /******************** CUADERNO DE CAMPO (INDEXEDDB) ********************/
+    let db = null;
+    function initJournalDB() {
+      const req = indexedDB.open('ZizakJournalDB', 1);
+      req.onupgradeneeded = (e) => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('entries')) {
+          d.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
+        }
+      };
+      req.onsuccess = (e) => { db = e.target.result; loadJournalEntries(); };
+    }
+
+    function saveJournalEntry(entry) {
+      if (!db) return;
+      const tx = db.transaction('entries', 'readwrite');
+      tx.objectStore('entries').add(entry);
+      tx.oncomplete = () => { loadJournalEntries(); showNotification('Captura guardada en Cuaderno', 'info'); };
+    }
+
+    function loadJournalEntries() {
+      if (!db) return;
+      const tx = db.transaction('entries', 'readonly');
+      const req = tx.objectStore('entries').getAll();
+      req.onsuccess = () => {
+        const entries = req.result || [];
+        const list = document.getElementById('journal-list');
+        const empty = document.getElementById('journal-empty');
+        if (entries.length === 0) {
+          list.innerHTML = '';
+          empty.classList.remove('hidden');
+          return;
+        }
+        empty.classList.add('hidden');
+        list.innerHTML = entries.reverse().map(e => `
+          <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <h4 class="font-bold text-base text-gray-900">${e.location}</h4>
+                <span class="text-xs text-gray-500 font-bold">${e.date}</span>
+              </div>
+              <p class="text-xs font-bold text-emerald-800 mb-2">🍄 ${e.species} · ${e.quantity || '-'}</p>
+              ${e.notes ? `<p class="text-xs text-gray-600 mb-3 italic">"${e.notes}"</p>` : ''}
+              ${e.photoData ? `<img src="${e.photoData}" class="w-full h-40 object-cover rounded-xl mb-3" />` : ''}
+            </div>
+            <button onclick="deleteJournalEntry(${e.id})" class="text-xs text-red-600 font-bold hover:underline self-end">Eliminar Registro</button>
+          </div>
+        `).join('');
+      };
+    }
+
+    window.deleteJournalEntry = (id) => {
+      if (!db) return;
+      const tx = db.transaction('entries', 'readwrite');
+      tx.objectStore('entries').delete(id);
+      tx.oncomplete = () => loadJournalEntries();
+    };
+
+    /******************** IMPORT / EXPORT JSON ********************/
+    function exportBackupJSON() {
+      if (!db) return;
+      const tx = db.transaction('entries', 'readonly');
+      tx.objectStore('entries').getAll().onsuccess = (e) => {
+        const journal = e.target.result || [];
+        const backup = {
+          version: 'v7',
+          exportDate: new Date().toISOString(),
+          locations: LOCATIONS,
+          settings: SETTINGS,
+          journal
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `zizak_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+      };
+    }
+
+    function importBackupJSON(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.locations) { LOCATIONS = data.locations; localStorage.setItem('zizak_locations', JSON.stringify(LOCATIONS)); }
+          if (data.settings) { SETTINGS = data.settings; localStorage.setItem('zizak_settings', JSON.stringify(SETTINGS)); }
+          if (data.journal && db) {
+            const tx = db.transaction('entries', 'readwrite');
+            const store = tx.objectStore('entries');
+            data.journal.forEach(item => store.put(item));
+          }
+          showNotification('Datos restaurados con éxito', 'info');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+          showNotification('Error al parsear el archivo JSON', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /******************** LUNA ********************/
+    function renderMoonPhase() {
+      const today = new Date();
+      const phase = (today.getTime() / 86400000 + 2440587.5 - 2440409.5) % 29.53058867 / 29.53058867;
+      const idx = Math.floor(phase * 8) % 8;
+      const emojis = ['🌑','🌒','🌓','HK','🌕','🌖','🌗','🌘'];
+      const names = {
+        es: ['Luna Nueva','Luna Creciente','Cuarto Creciente','Gibosa Creciente','Luna Llena','Gibosa Menguante','Cuarto Menguante','Luna Menguante'],
+        eu: ['Ilargi berria','Ilgora','Laurden gorantz','Ilgora handitua','Ilargi betea','Ilbehera handitua','Laurden beherantz','Ilbehera']
+      };
+      document.getElementById('moon-emoji').textContent = emojis[idx];
+      document.getElementById('moon-phase-name').textContent = names[getLang()][idx];
+    }
+
+    /******************** EVENTOS & EVENT LISTENERS ********************/
+    document.addEventListener('DOMContentLoaded', () => {
+      applyStaticI18N();
+      initJournalDB();
+
+      // Idioma toggle
+      document.getElementById('__langBtn').onclick = () => {
+        const next = isEU() ? 'es' : 'eu';
+        setLang(next);
+        applyStaticI18N();
+        refreshGrid();
+        renderGuideAndRecipes();
+      };
+
+      // Navegación Tabs
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          const tabId = btn.dataset.tab;
+          document.getElementById(`section-${tabId}`).classList.add('active');
+          if (tabId === 'map') { initMap(); setTimeout(() => map.invalidateSize(), 200); }
+          if (tabId === 'guide') renderGuideAndRecipes();
+        };
+      });
+
+      // Buscador Nominatim
+      document.getElementById('search-button').onclick = async () => {
+        const query = document.getElementById('location-name').value.trim();
+        if (!query) return;
+        const status = document.getElementById('search-status');
+        const resDiv = document.getElementById('search-results');
+        const addBtn = document.getElementById('add-location-btn');
+        status.innerHTML = `Buscando <b>${query}</b>...`;
+        resDiv.classList.remove('hidden');
+        addBtn.classList.add('hidden');
+
+        try {
+          const r = await fetch(`${NOMINATIM_URL}?q=${encodeURIComponent(query)}&format=json&limit=1`);
+          const data = await r.json();
+          if (data && data.length > 0) {
+            const loc = data[0];
+            const lat = parseFloat(loc.lat), lon = parseFloat(loc.lon);
+            const name = loc.display_name.split(',')[0];
+            window.tempSearchResult = { name, lat, lon };
+            status.innerHTML = `Encontrado: <b>${name}</b> (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+            addBtn.classList.remove('hidden');
+          } else {
+            status.textContent = 'Ubicación no encontrada.';
+          }
+        } catch (_) {
+          status.textContent = 'Error al realizar la búsqueda.';
+        }
+      };
+
+      document.getElementById('add-location-btn').onclick = async () => {
+        if (!window.tempSearchResult) return;
+        const habitat = document.getElementById('habitat-select').value;
+        const canopy = document.getElementById('canopy-select').value;
+        const ageClass = document.getElementById('age-select').value;
+        const soilAcidity = document.getElementById('soil-select').value;
+
+        const newLoc = { ...window.tempSearchResult, habitat, canopy, ageClass, soilAcidity };
+        LOCATIONS.push(newLoc);
+        localStorage.setItem('zizak_locations', JSON.stringify(LOCATIONS));
+        document.getElementById('search-results').classList.add('hidden');
+        document.getElementById('location-name').value = '';
+        await loadAllLocations();
+      };
+
+      // Controles filtro y orden
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.onclick = (e) => {
+          document.querySelectorAll('.filter-btn').forEach(x => x.className = 'filter-btn bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg font-semibold');
+          e.target.className = 'filter-btn bg-emerald-700 text-white px-3 py-1 rounded-lg font-semibold';
+          currentFilter = e.target.dataset.filter;
+          refreshGrid();
+        };
+      });
+
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        b.onclick = (e) => {
+          document.querySelectorAll('.sort-btn').forEach(x => x.className = 'sort-btn bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-lg font-semibold');
+          e.target.className = 'sort-btn bg-emerald-700 text-white px-3 py-1 rounded-lg font-semibold';
+          currentSort = e.target.dataset.sort;
+          refreshGrid();
+        };
+      });
+
+      // Cuaderno Form Handlers
+      document.getElementById('new-journal-entry-btn').onclick = () => {
+        document.getElementById('journal-form-card').classList.toggle('hidden');
+        const sel = document.getElementById('j-species');
+        sel.innerHTML = SPECIES_GUIDE.map(s => `<option value="${s.nameES}">${s.nameES}</option>`).join('');
+      };
+
+      document.getElementById('cancel-journal-btn').onclick = () => {
+        document.getElementById('journal-form-card').classList.add('hidden');
+      };
+
+      document.getElementById('journal-form').onsubmit = (e) => {
+        e.preventDefault();
+        const date = document.getElementById('j-date').value;
+        const location = document.getElementById('j-location').value;
+        const species = document.getElementById('j-species').value;
+        const quantity = document.getElementById('j-quantity').value;
+        const notes = document.getElementById('j-notes').value;
+        const photoFile = document.getElementById('j-photo').files[0];
+
+        const save = (photoData = null) => {
+          saveJournalEntry({ date, location, species, quantity, notes, photoData });
+          document.getElementById('journal-form-card').classList.add('hidden');
+          document.getElementById('journal-form').reset();
+        };
+
+        if (photoFile) {
+          const r = new FileReader();
+          r.onload = () => save(r.result);
+          r.readAsDataURL(photoFile);
+        } else {
+          save();
+        }
+      };
+
+      // Modales Sync y Ayuda
+      const syncModal = document.getElementById('sync-modal');
+      const helpModal = document.getElementById('help-modal');
+      document.getElementById('export-import-btn').onclick = () => syncModal.style.display = 'block';
+      document.getElementById('help-button').onclick = () => helpModal.style.display = 'block';
+      document.querySelectorAll('.modal .close-x').forEach(x => x.onclick = () => x.closest('.modal').style.display = 'none');
+
+      document.getElementById('export-json-btn').onclick = exportBackupJSON;
+      document.getElementById('import-json-btn').onclick = () => {
+        const file = document.getElementById('import-json-file').files[0];
+        if (file) importBackupJSON(file);
+      };
+
+      // Toggle breakdown info
+      document.getElementById('grid').addEventListener('click', (e) => {
+        const btn = e.target.closest('.toggle-bd-btn');
+        if (!btn) return;
+        const target = document.getElementById(btn.dataset.target);
+        if (target) target.classList.toggle('hidden');
+      });
+
+      // Subtabs Guía / Recetas
+      document.getElementById('subtab-guide-btn').onclick = (e) => {
+        e.target.className = 'py-2 px-1 border-b-2 border-emerald-600 font-bold text-emerald-800 text-base';
+        document.getElementById('subtab-recipes-btn').className = 'py-2 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-800 text-base';
+        document.getElementById('subtab-guide-content').classList.remove('hidden');
+        document.getElementById('subtab-recipes-content').classList.add('hidden');
+      };
+
+      document.getElementById('subtab-recipes-btn').onclick = (e) => {
+        e.target.className = 'py-2 px-1 border-b-2 border-emerald-600 font-bold text-emerald-800 text-base';
+        document.getElementById('subtab-guide-btn').className = 'py-2 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-800 text-base';
+        document.getElementById('subtab-recipes-content').classList.remove('hidden');
+        document.getElementById('subtab-guide-content').classList.add('hidden');
+      };
+
+      document.getElementById('guide-search').oninput = renderGuideAndRecipes;
+
+      // Carga inicial
+      loadAllLocations();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zizak Pro - Sistema de Predicción Micológica Norte Peninsular</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet CSS & JS CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
+
+  <!-- HEADER NAVEGACIÓN -->
+  <header class="bg-white/90 backdrop-blur-md sticky top-0 z-[2000] border-b border-emerald-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-emerald-600/20">
+          🍄
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-slate-900 tracking-tight" data-i18n="appName">Zizak Pro</h1>
+          <p class="text-[11px] text-slate-500 font-semibold" data-i18n="appTagline">Predicción Micológica · Norte Peninsular</p>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN Y IDIOMA -->
+      <div class="flex items-center gap-2">
+        <button id="export-backup-btn" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center gap-1">
+          💾 <span data-i18n="sync.btn">Sync / Copia</span>
+        </button>
+
+        <button id="__langBtn" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+          🌐 <span>Euskara</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- BARRA DE PESTAÑAS (NAVEGACIÓN PRINCIPAL) -->
+    <nav class="max-w-7xl mx-auto px-4 flex space-x-2 border-t border-slate-100 overflow-x-auto">
+      <button data-tab="map" class="nav-tab-btn py-3 px-4 text-xs font-bold border-b-2 border-emerald-600 text-emerald-800 flex items-center gap-2 transition">
+        🗺️ <span data-i18n="nav.map">Mapa</span>
+      </button>
+      <button data-tab="forecast" class="nav-tab-btn py-3 px-4 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-2 transition">
+        🌤️ <span data-i18n="nav.forecast">Predicción & Lugares</span>
+      </button>
+      <button data-tab="guide" class="nav-tab-btn py-3 px-4 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-2 transition">
+        🍄 <span data-i18n="nav.guide">Guía de Especies</span>
+      </button>
+      <button data-tab="journal" class="nav-tab-btn py-3 px-4 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-2 transition">
+        📸 <span data-i18n="nav.journal">Cuaderno</span>
+      </button>
+      <button data-tab="settings" class="nav-tab-btn py-3 px-4 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-2 transition">
+        ⚙️ <span data-i18n="nav.settings">Calibración</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL (SECCIONES PESTAÑAS) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-6">
+
+    <!-- SECCIÓN 1: MAPA (PANTALLA DE INICIO) -->
+    <section id="section-map" class="tab-section active space-y-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <h2 class="text-2xl font-bold text-emerald-900" data-i18n="map.title">Mapa de Fructificación Micológica</h2>
+            <p class="text-xs text-slate-600" data-i18n="map.subtitle">Haz clic en cualquier monte para obtener el Top 5 de especies y ver la predicción.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <button id="toggle-grid-btn" class="px-3 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs transition border border-emerald-300 flex items-center gap-1.5 shadow-sm">
+              🚦 <span>Malla Semáforo: Visible</span>
+            </button>
+
+            <!-- CONTROLES CAPA DE LLUVIA TV (PREDICCIÓN HOY/MAÑANA/PASADO) -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="font-extrabold text-slate-700 px-1 text-[11px]">☔ Lluvia (TV):</span>
+              <button data-rain-day="-1" class="rain-tab-btn active px-2.5 py-1 rounded-lg font-bold text-[11px] bg-white text-slate-900 shadow-2xs transition">Off</button>
+              <button data-rain-day="0" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Hoy</button>
+              <button data-rain-day="1" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Mañana</button>
+              <button data-rain-day="2" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Pasado</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div id="map"></div>
+
+          <!-- LEYENDA TV DE ESCALA DE PRECIPITACIÓN -->
+          <div id="rain-legend-bar" class="hidden absolute bottom-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-900/90 backdrop-blur-sm text-white rounded-xl text-xs font-bold shadow-lg border border-slate-700">
+            <span class="text-emerald-400 font-extrabold flex items-center gap-1" id="rain-legend-title">
+              <span>🌧️ Predicción de Precipitación Acumulada</span>
+            </span>
+            <div class="flex flex-wrap items-center gap-2 text-[11px]">
+              <span class="px-2 py-0.5 rounded bg-blue-500/40 text-blue-200 border border-blue-400/50">💧 1-5 mm (Débil)</span>
+              <span class="px-2 py-0.5 rounded bg-cyan-500/60 text-white border border-cyan-300/60">🌧️ 5-15 mm (Moderada)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/80 text-white border border-emerald-300">🟩 15-25 mm (Copiosa)</span>
+              <span class="px-2 py-0.5 rounded bg-purple-600/90 text-white border border-purple-300 font-black">🟪 >25 mm (Abundante)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: PREDICCIÓN & LUGARES -->
+    <section id="section-forecast" class="tab-section space-y-6">
+      
+      <!-- BUSCADOR DE PARAJES Y ALERTA -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-base text-slate-900" data-i18n="add.title">Añadir Nueva Ubicación Micológica</h3>
+        <div class="flex flex-wrap gap-2">
+          <input type="text" id="search-input" class="flex-1 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" data-i18n-ph="add.placeholder" placeholder="Ej. Selva de Irati, Aralar, Gorbeia, Ultzama, Ordesa..." />
+          <button id="add-location-btn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-sm" data-i18n="add.search">
+            🔍 Buscar
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTROS Y CONTROLES -->
+      <div class="flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-slate-600" data-i18n="controls.filterBy">Filtrar por probabilidad:</label>
+          <select id="filter-chance" class="border border-slate-300 rounded-lg text-xs font-semibold px-3 py-1.5 focus:ring-2 focus:ring-emerald-500">
+            <option value="all" data-i18n="controls.all">Todas las probabilidades</option>
+            <option value="Alta" data-i18n="controls.high">🟢 Alta</option>
+            <option value="Media" data-i18n="controls.mid">🟡 Media</option>
+            <option value="Baja" data-i18n="controls.low">🔴 Baja</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-slate-600" data-i18n="controls.sortBy">Ordenar por:</label>
+          <select id="sort-by" class="border border-slate-300 rounded-lg text-xs font-semibold px-3 py-1.5 focus:ring-2 focus:ring-emerald-500">
+            <option value="chance" data-i18n="controls.chance">Probabilidad máxima</option>
+            <option value="name" data-i18n="controls.name">Nombre del paraje</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- MENSAJE DE CARGA -->
+      <div id="loading-message" class="hidden text-center py-12">
+        <div class="inline-block animate-spin text-3xl mb-2">🌀</div>
+        <p class="text-xs font-bold text-slate-600" data-i18n="loading">Cargando datos meteorológicos y calculando modelo bioclimático...</p>
+      </div>
+
+      <!-- GRID DE TARJETAS DE PREDICCIÓN -->
+      <div id="grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+    </section>
+
+    <!-- SECCIÓN 3: GUÍA DE ESPECIES & RECETARIO -->
+    <section id="section-guide" class="tab-section space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-emerald-900 mb-1" data-i18n="guide.title">Guía Ilustrada de Setas Comestibles</h2>
+          <p class="text-xs text-slate-600" data-i18n="guide.subtitle">Catálogo con fenología mes a mes, hábitat, confusiones y recetas.</p>
+        </div>
+
+        <!-- FILTROS DE GUÍA -->
+        <div class="flex flex-wrap gap-3">
+          <input type="text" id="guide-search" class="flex-1 border border-slate-300 rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-emerald-500" data-i18n-ph="guide.searchPh" placeholder="Buscar por especie, euskera o hábitat..." />
+          <select id="filter-edible" class="border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+            <option value="all" data-i18n="guide.filterEdible">Todas las comestibilidades</option>
+            <option value="Excelente">Excelente</option>
+            <option value="Buen comestible">Buen comestible</option>
+          </select>
+          <select id="filter-season" class="border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+            <option value="all" data-i18n="guide.filterSeason">Todas las estaciones</option>
+            <option value="3">Abril (Primavera)</option>
+            <option value="4">Mayo (Primavera)</option>
+            <option value="8">Septiembre (Otoño)</option>
+            <option value="9">Octubre (Otoño)</option>
+            <option value="10">Noviembre (Otoño)</option>
+          </select>
+        </div>
+
+        <!-- GRID DE ESPECIES -->
+        <div id="guide-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <!-- SECCIÓN RECETARIO -->
+        <div class="border-t border-slate-200 pt-6 space-y-4">
+          <h3 class="text-xl font-bold text-amber-900" data-i18n="guide.subtabRecipes">Recetario Gastronómico & Conservación</h3>
+          <p class="text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200" data-i18n="recipes.intro">
+            🍳 Recomendación de cocina: Limpiar en seco con cepillo o trapo húmedo. Preservar el aroma y la textura sin lavar bajo chorro de agua directo.
+          </p>
+          <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: CUADERNO DE CAMPO (INDEXEDDB) -->
+    <section id="section-journal" class="tab-section space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h2 class="text-2xl font-bold text-emerald-900" data-i18n="journal.title">Cuaderno de Campo Micológico</h2>
+            <p class="text-xs text-slate-600" data-i18n="journal.desc">Guarda tus capturas con coordenadas GPS exactas, peso, especie y fotografía.</p>
+          </div>
+          <button onclick="document.getElementById('journal-modal').classList.remove('hidden')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm" data-i18n="journal.newBtn">
+            📸 Nueva Captura
+          </button>
+        </div>
+
+        <!-- LISTA DE ENTRADAS DEL CUADERNO -->
+        <div id="journal-entries-list"></div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: CALIBRACIÓN & AJUSTES -->
+    <section id="section-settings" class="tab-section space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-2xl font-bold text-emerald-900" data-i18n="settings.title">Calibración del Modelo Bioclimático</h2>
+        
+        <!-- GUÍA EXPLICATIVA COLLAPSIBLE DE CÁLCULO Y CALIBRACIÓN -->
+        <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 text-xs text-slate-700 space-y-3 shadow-xs">
+          <div class="flex justify-between items-center cursor-pointer select-none" onclick="const el = document.getElementById('calibration-guide-content'); el.classList.toggle('hidden');">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📖</span>
+              <h3 class="font-bold text-sm text-emerald-950">¿Cómo se calcula la probabilidad y cómo afecta la calibración?</h3>
+            </div>
+            <button type="button" class="text-emerald-700 font-bold text-xs hover:underline flex items-center gap-1">
+              <span>Explicación del Modelo</span> ▾
+            </button>
+          </div>
+
+          <div id="calibration-guide-content" class="hidden pt-3 border-t border-emerald-200/60 space-y-3 leading-relaxed">
+            <p>El motor bioclimático de <strong>Zizak Pro</strong> simula la respuesta fisiológica del micelio subterráneo combinando la meteorología observada de las últimas 2 semanas con la predicción a 7 días.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
+                <span class="font-bold text-emerald-900 block flex items-center gap-1">⏳ 1. Ventanas de Incubación (Lag)</span>
+                <p class="text-slate-600">Las setas no salen el día de la lluvia. El micelio necesita de <strong>7 a 21 días de incubación</strong> tras un frente copioso (>15-25 mm). El pico de fructificación se alcanza entre el día 10 y 16 post-lluvia.</p>
+              </div>
+
+              <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
+                <span class="font-bold text-amber-900 block flex items-center gap-1">☀️ 2. Filtro Anti-Evaporación (&lt; 5mm)</span>
+                <p class="text-slate-600">Con temperaturas altas (>22°C) o aire seco, lluvias chiri-miri (&lt;5 mm) se evaporan al 100% en la hojarasca sin humedecer el micelio subterráneo, evitando falsos picos de probabilidad.</p>
+              </div>
+
+              <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
+                <span class="font-bold text-red-900 block flex items-center gap-1">🔥 3. Aborto por Ola de Calor Continuado</span>
+                <p class="text-slate-600">Si durante el periodo de incubación surgen <strong>3+ días seguidos de calor sofocante (>26°C) o viento seco</strong>, la fructificación iniciada se deshidrata y el motor penaliza la probabilidad.</p>
+              </div>
+
+              <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
+                <span class="font-bold text-blue-900 block flex items-center gap-1">⚙️ 4. Impacto de Modificar la Calibración</span>
+                <p class="text-slate-600">
+                  • <strong>Smax Suelo (mm)</strong>: Aumentarlo exige precipitaciones mayores para saturar el terreno.<br/>
+                  • <strong>Temperatura Óptima</strong>: Ajusta el rango térmico ideal para las especies de la zona.<br/>
+                  • <strong>Castigo por Calor</strong>: Umbral donde el calor seco empieza a restar probabilidad.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form id="settings-form" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <h4 class="font-bold text-sm text-slate-800" data-i18n="settings.general.smiTitle">Humedad de suelo (SMI Smax)</h4>
+              <div>
+                <label class="text-xs text-slate-600 font-medium" data-i18n="settings.general.smaxAcid">Smax Suelo Ácido (mm)</label>
+                <input type="number" id="cfg-smax-acid" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
+              </div>
+              <div>
+                <label class="text-xs text-slate-600 font-medium" data-i18n="settings.general.smaxBasic">Smax Suelo Basófilo (mm)</label>
+                <input type="number" id="cfg-smax-basic" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
+              </div>
+            </div>
+
+            <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <h4 class="font-bold text-sm text-slate-800" data-i18n="settings.general.tempTitle">Temperatura (°C)</h4>
+              <div class="flex gap-2">
+                <div class="flex-1">
+                  <label class="text-xs text-slate-600 font-medium">Óptimo Mín (°C)</label>
+                  <input type="number" id="cfg-topt-min" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
+                </div>
+                <div class="flex-1">
+                  <label class="text-xs text-slate-600 font-medium">Óptimo Máx (°C)</label>
+                  <input type="number" id="cfg-topt-max" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-slate-600 font-medium" data-i18n="settings.general.tHeatTh">Castigo Calor si T > (°C)</label>
+                <input type="number" id="cfg-theat-th" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-4 border-t border-slate-200">
+            <button type="button" id="reset-settings-btn" class="text-xs font-bold text-red-600 hover:text-red-800" data-i18n="settings.reset">
+              Restaurar Estándar
+            </button>
+            <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-sm transition">
+              💾 Guardar Ajustes
+            </button>
+          </div>
+        </form>
+
+        <!-- SECCIÓN BACKUP JSON -->
+        <div class="border-t border-slate-200 pt-6 space-y-3">
+          <h3 class="font-bold text-base text-slate-900" data-i18n="sync.title">Copia de Seguridad y Sincronización</h3>
+          <p class="text-xs text-slate-600" data-i18n="sync.desc">Exporta o importa tus datos en un único archivo JSON.</p>
+          <div class="flex flex-wrap gap-3">
+            <button id="export-backup-btn" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs transition" data-i18n="sync.exportBtn">
+              ⬇️ Descargar Backup JSON
+            </button>
+            <label class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition">
+              <span data-i18n="sync.importBtn">⬆️ Restaurar desde JSON</span>
+              <input type="file" id="import-backup-file" accept=".json" class="hidden" />
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL FORMULARIO NUEVA CAPTURA CUADERNO DE CAMPO -->
+  <div id="journal-modal" class="hidden fixed inset-0 z-[3000] modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-lg text-emerald-900" data-i18n="journal.formTitle">Registrar Salida al Monte</h3>
+        <button onclick="document.getElementById('journal-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+      </div>
+
+      <form id="journal-form" class="space-y-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.date">Fecha de Salida</label>
+          <input type="date" id="j-date" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs font-semibold mt-1" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.location">Lugar / Paraje / Coordenadas</label>
+          <input type="text" id="j-location" required placeholder="Ej. Selva de Irati (42.983, -1.217)" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs mt-1" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.species">Especie Principal</label>
+          <input type="text" id="j-species" required placeholder="Ej. Boletus edulis / Onddo zuria" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs mt-1" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.quantity">Cantidad / Peso (kg)</label>
+          <input type="number" step="0.1" id="j-quantity" placeholder="Ej. 2.5" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs mt-1" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.photo">Fotografía (opcional)</label>
+          <input type="file" id="j-photo" accept="image/*" class="w-full border border-slate-300 rounded-xl p-2 text-xs mt-1" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700" data-i18n="journal.notes">Observaciones / Notas</label>
+          <textarea id="j-notes" rows="3" placeholder="Estado del monte, clima, arbolado..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs mt-1"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="document.getElementById('journal-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100" data-i18n="journal.cancel">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-sm" data-i18n="journal.save">Guardar Captura</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+    <p>Zizak Pro v8 · Modelo Bioclimático MYCOSILVA · Norte Peninsular</p>
+  </footer>
+
+  <!-- SCRIPT BOOTSTRAP MODULE -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

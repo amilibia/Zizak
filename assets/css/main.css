@@ -1,0 +1,128 @@
+/* Zizak Pro - Estilos Personalizados */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --color-primary: #059669;
+  --color-primary-dark: #047857;
+  --color-accent: #d97706;
+  --bg-main: #f8fafc;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: #0f172a;
+}
+
+/* Glassmorphism y Elevación */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.card-chance-Alta {
+  border-left: 6px solid #10b981;
+  background: linear-gradient(135deg, #ffffff 80%, #f0fdf4 100%);
+}
+
+.card-chance-Media {
+  border-left: 6px solid #f59e0b;
+  background: linear-gradient(135deg, #ffffff 80%, #fffbeb 100%);
+}
+
+.card-chance-Baja {
+  border-left: 6px solid #ef4444;
+  background: linear-gradient(135deg, #ffffff 80%, #fef2f2 100%);
+}
+
+/* Visor del Mapa Leaflet */
+#map {
+  height: 600px;
+  width: 100%;
+  border-radius: 1rem;
+  z-index: 1;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Chips y Badges */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Gráfico de Fenología (Calendario Mes a Mes) */
+.fruiting-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.fruiting-month-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fruiting-level-0 { background: #e2e8f0; color: #94a3b8; }
+.fruiting-level-1 { background: #dcfce7; color: #166534; }
+.fruiting-level-2 { background: #86efac; color: #14532d; }
+.fruiting-level-3 { background: #22c55e; color: #ffffff; }
+
+/* Animaciones y Transiciones */
+.tab-section {
+  display: none;
+  animation: fadeIn 0.25s ease-in-out forwards;
+}
+
+.tab-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Overlay */
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

@@ -1,0 +1,98 @@
+{
+  "boletus_edulis": {
+    "local": "assets/img/species/boletus_edulis.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Boletus_edulis_IT.jpg/330px-Boletus_edulis_IT.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "boletus_aereus": {
+    "local": "assets/img/species/boletus_aereus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Bronze_Roehrling.jpg/330px-Bronze_Roehrling.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "boletus_aestivalis": {
+    "local": "assets/img/species/boletus_aestivalis.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Boletus.JPG/330px-Boletus.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "boletus_pinophilus": {
+    "local": "assets/img/species/boletus_pinophilus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Boletus_pinophilus3.JPG/330px-Boletus_pinophilus3.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "amanita_caesarea": {
+    "local": "assets/img/species/amanita_caesarea.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Oronges.jpg/330px-Oronges.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "hygrophorus_marzuolus": {
+    "local": "assets/img/species/hygrophorus_marzuolus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Marzschnecklinge.jpg/330px-Marzschnecklinge.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "neoboletus_erythropus": {
+    "local": "assets/img/species/neoboletus_erythropus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Boletus_erythropus_2010_G3.jpg/330px-Boletus_erythropus_2010_G3.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "leccinum_quercinum": {
+    "local": "assets/img/species/leccinum_quercinum.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Leccinum_aurantiacum.jpg/330px-Leccinum_aurantiacum.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "cantharellus": {
+    "local": "assets/img/species/cantharellus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Chanterelle_Cantharellus_cibarius.jpg/330px-Chanterelle_Cantharellus_cibarius.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "lactarius": {
+    "local": "assets/img/species/lactarius.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Lactarius_deliciosus.jpg/330px-Lactarius_deliciosus.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "clitocybe_nebularis": {
+    "local": "assets/img/species/clitocybe_nebularis.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Nevelzwam_%28nebularis%29_tussen_afgevallen_beukenblad_%28d.j.b.%29_01.jpg/330px-Nevelzwam_%28nebularis%29_tussen_afgevallen_beukenblad_%28d.j.b.%29_01.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "tricholoma_columbetta": {
+    "local": "assets/img/species/tricholoma_columbetta.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/2012-10-12_Tricholoma_columbetta_%28Fr.%29_P._Kumm_318304.jpg/330px-2012-10-12_Tricholoma_columbetta_%28Fr.%29_P._Kumm_318304.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "pleurotus_eryngii": {
+    "local": "assets/img/species/pleurotus_eryngii.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Seta_de_cardo_%28Pleurotus_eryngii%29%2C_2012-10-03%2C_DD_01.JPG/330px-Seta_de_cardo_%28Pleurotus_eryngii%29%2C_2012-10-03%2C_DD_01.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "tricholoma_portentosum": {
+    "local": "assets/img/species/tricholoma_portentosum.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Tricholoma_portentosum_181316.jpg/330px-Tricholoma_portentosum_181316.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "tricholoma_terreum": {
+    "local": "assets/img/species/tricholoma_terreum.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Tricholoma_terreum_20061105wa.jpg/330px-Tricholoma_terreum_20061105wa.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "marasmius_oreades": {
+    "local": "assets/img/species/marasmius_oreades.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Michigan_Marasmius_oreades.jpg/330px-Michigan_Marasmius_oreades.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "morchella_conica": {
+    "local": "assets/img/species/morchella_conica.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Morchella_elata_Spitzmorchel_Morchella_conica.jpg/330px-Morchella_elata_Spitzmorchel_Morchella_conica.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "craterellus_lutescens": {
+    "local": "assets/img/species/craterellus_lutescens.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Cantharellus_lutescens.jpg/330px-Cantharellus_lutescens.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "lactarius_sanguifluus": {
+    "local": "assets/img/species/lactarius_sanguifluus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Weinroter_Kiefern-Reizker_Lactarius_sanguifluus.jpg/330px-Weinroter_Kiefern-Reizker_Lactarius_sanguifluus.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "calocybe_gambosa": {
+    "local": "assets/img/species/calocybe_gambosa.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Calocybe_gambosa_080420wa.jpg/330px-Calocybe_gambosa_080420wa.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "lepista_nuda": {
+    "local": "assets/img/species/lepista_nuda.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Clitocybe_nuda_%28Fr.%29_H.E._Bigelow_%26_A.H._Sm_267650.jpg/330px-Clitocybe_nuda_%28Fr.%29_H.E._Bigelow_%26_A.H._Sm_267650.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "hydnum_repandum": {
+    "local": "assets/img/species/hydnum_repandum.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Hedgehog_fungi2.jpg/330px-Hedgehog_fungi2.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "cortinarius_caperatus": {
+    "local": "assets/img/species/cortinarius_caperatus.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Rozites_caperata_20100919w.JPG/330px-Rozites_caperata_20100919w.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  "amanita_rubescens": {
+    "local": "assets/img/species/amanita_rubescens.jpg",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Amanita_rubescens.JPG/330px-Amanita_rubescens.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  }
+}
