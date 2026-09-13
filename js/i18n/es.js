@@ -147,5 +147,47 @@ export const es = {
     frost: "Heladas nocturnas recientes perjudican los cuerpos fructíferos",
     habitat_mult: "🌲 Hábitat boscoso óptimo y sustrato favorable",
     zone_bonus: "🗺️ Alta afinidad bioclimática con la masa forestal de la zona (+35%)"
+  },
+  rain: {
+    title: "☔ Lluvia (TV):",
+    off: "Off",
+    today: "🌧️ Hoy",
+    tomorrow: "🌧️ Mañana",
+    afterTomorrow: "🌧️ Pasado",
+    legendTitle: "🌧️ Predicción de Precipitación Acumulada",
+    legend15: "💧 1-5 mm (Débil)",
+    legend515: "🌧️ 5-15 mm (Moderada)",
+    legend1525: "🟩 15-25 mm (Copiosa)",
+    legend25: "🟪 >25 mm (Abundante)"
+  },
+  calibrationGuide: {
+    title: "¿Cómo se calcula la probabilidad y cómo afecta la calibración?",
+    button: "Explicación del Modelo",
+    intro: "El motor bioclimático de Zizak Pro simula la respuesta fisiológica del micelio subterráneo combinando la meteorología observada de las últimas 2 semanas con la predicción a 7 días.",
+    card1Title: "⏳ 1. Ventanas de Incubación (Lag)",
+    card1Desc: "Las setas no salen el día de la lluvia. El micelio necesita de 7 a 21 días de incubación tras un frente copioso (>15-25 mm). El pico de fructificación se alcanza entre el día 10 y 16 post-lluvia.",
+    card2Title: "☀️ 2. Filtro Anti-Evaporación (< 5mm)",
+    card2Desc: "Con temperaturas altas (>22°C) o aire seco, lluvias chiri-miri (<5 mm) se evaporan al 100% en la hojarasca sin humedecer el micelio subterráneo, evitando falsos picos de probabilidad.",
+    card3Title: "🔥 3. Aborto por Ola de Calor Continuado",
+    card3Desc: "Si durante el periodo de incubación surgen 3+ días seguidos de calor sofocante (>26°C) o viento seco, la fructificación iniciada se deshidrata y el motor penaliza la probabilidad.",
+    card4Title: "⚙️ 4. Impacto de Modificar la Calibración",
+    card4Desc: "• Smax Suelo (mm): Aumentarlo exige precipitaciones mayores para saturar el terreno.<br/>• Temperatura Óptima: Ajusta el rango térmico ideal para las especies de la zona.<br/>• Castigo por Calor: Umbral donde el calor seco empieza a restar probabilidad."
+  },
+  sections: {
+    userSaved: "Mis Lugares Guardados",
+    userSavedEmptyTitle: "No tienes parajes personalizados guardados aún.",
+    userSavedEmptyDesc: "Haz clic sobre cualquier punto en el Visor Territorial para guardar tu zona de setas.",
+    officialZones: "Zonas Micológicas y Parques de Referencia",
+    showOfficial: "👁️ Mostrar Zonas de Referencia",
+    hideOfficial: "👁️ Ocultar Zonas de Referencia",
+    parajes: "parajes",
+    zonas: "zonas",
+    goToDetail: "🚀 Ir a detalle",
+    todayChance: "Probabilidad Hoy:",
+    broteIn: "📈 ¡Brote previsto en",
+    broteInDays: "días!",
+    broteHalo: "📈 ¡Brote a la vista!",
+    altitude: "altitud",
+    delete: "🗑️ Eliminar"
   }
 };

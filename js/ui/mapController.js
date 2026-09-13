@@ -1,3 +1,5 @@
+import { t, getLang } from '../i18n/i18n.js';
+
 let map = null;
 let mapMarkersGroup = null;
 let mapRainLayerGroup = null;
@@ -240,9 +242,9 @@ export function updateMapMarkers(forecastLocations) {
     const marker = L.marker([loc.lat, loc.lon], { icon: customIcon });
 
     // Tooltip al pasar el ratón (hover)
-    let hoverText = isUserSaved ? `⭐ ${loc.name}: ${todayF.score} (${todayF.chance})` : `${loc.name}: ${todayF.score}`;
+    let hoverText = isUserSaved ? `⭐ ${loc.name}: ${todayF.score} (${t(`chanceMap.${todayF.chance}`)})` : `${loc.name}: ${todayF.score}`;
     if (isImproving) {
-      hoverText += ` 📈 ¡Brote a la vista! (${bestFutureDay.score} en ${bestFutureDay.dayOffset}d)`;
+      hoverText += ` ${t('sections.broteIn')} ${bestFutureDay.dayOffset}${t('sections.broteInDays')}`;
     }
 
     marker.bindTooltip(hoverText, {
@@ -255,10 +257,10 @@ export function updateMapMarkers(forecastLocations) {
     const trendBadgeHtml = isImproving ? `
       <div class="bg-gradient-to-r from-blue-50 to-emerald-50 p-2 rounded-xl border border-blue-200 text-[11px] text-blue-950 space-y-0.5 shadow-2xs">
         <div class="font-extrabold flex items-center gap-1">
-          <span>📈 ¡Brote previsto en ${bestFutureDay.dayOffset} días!</span>
+          <span>${t('sections.broteIn')} ${bestFutureDay.dayOffset} ${t('sections.broteInDays')}</span>
         </div>
         <p class="text-[10px] font-semibold text-slate-700 leading-tight">
-          Subirá a <span class="font-black text-emerald-800">${bestFutureDay.score}</span> (${bestFutureDay.chance}) por lluvia o choque térmico.
+          Subirá a <span class="font-black text-emerald-800">${bestFutureDay.score}</span> (${t(`chanceMap.${bestFutureDay.chance}`)})
         </p>
       </div>
     ` : '';
@@ -266,15 +268,15 @@ export function updateMapMarkers(forecastLocations) {
     marker.bindPopup(`
       <div class="p-2.5 text-xs space-y-1.5 max-w-[230px]">
         <h4 class="font-bold text-sm text-emerald-900 leading-tight">${isUserSaved ? '⭐ ' : ''}${loc.name}</h4>
-        <p class="text-slate-600 text-[11px] font-medium">${Math.round(loc.altitude || 600)}m altitud</p>
-        <p class="text-slate-800 text-[11px] font-bold">Probabilidad Hoy: <span class="text-emerald-700">${todayF.score}</span></p>
+        <p class="text-slate-600 text-[11px] font-medium">${Math.round(loc.altitude || 600)}m ${t('sections.altitude')}</p>
+        <p class="text-slate-800 text-[11px] font-bold">${t('sections.todayChance')} <span class="text-emerald-700">${todayF.score}</span></p>
         <div>
-          <span class="inline-block px-2 py-0.5 font-bold rounded-full text-[10px] ${todayF.chance === 'Alta' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : (todayF.chance === 'Media' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-red-100 text-red-900 border border-red-300')}">${todayF.chance === 'Alta' ? '🟢 Brote Activo' : (todayF.chance === 'Media' ? '🟡 Fructificación Media' : '🔴 Baja Hoy')}</span>
+          <span class="inline-block px-2 py-0.5 font-bold rounded-full text-[10px] ${todayF.chance === 'Alta' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : (todayF.chance === 'Media' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-red-100 text-red-900 border border-red-300')}">${t(`chanceMap.${todayF.chance}`)}</span>
         </div>
         ${trendBadgeHtml}
         <div class="pt-1">
           <button class="btn-go-to-loc w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-1.5 px-2 rounded-lg transition text-[11px] flex items-center justify-center gap-1 shadow-sm">
-            🚀 <span>Ir a detalle</span>
+            ${t('sections.goToDetail')}
           </button>
         </div>
       </div>

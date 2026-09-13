@@ -65,14 +65,14 @@ export function renderForecastGrid(allLocationsData, currentFilter, currentSort,
     <div class="flex justify-between items-center pb-2 border-b border-emerald-200">
       <div class="flex items-center gap-2">
         <span class="text-xl">⭐</span>
-        <h3 class="text-base font-extrabold text-slate-900">Mis Lugares Guardados</h3>
-        <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">${userFiltered.length} parajes</span>
+        <h3 class="text-base font-extrabold text-slate-900">${t('sections.userSaved')}</h3>
+        <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">${userFiltered.length} ${t('sections.parajes')}</span>
       </div>
     </div>
     ${userFiltered.length === 0 ? `
       <div class="bg-slate-50/80 p-5 rounded-2xl border border-dashed border-slate-300 text-center">
-        <p class="text-xs font-bold text-slate-700">No tienes parajes personalizados guardados aún.</p>
-        <p class="text-[11px] text-slate-500 mt-1">Haz clic sobre cualquier punto en el <strong>Visor Territorial</strong> para guardar tu zona de setas.</p>
+        <p class="text-xs font-bold text-slate-700">${t('sections.userSavedEmptyTitle')}</p>
+        <p class="text-[11px] text-slate-500 mt-1">${t('sections.userSavedEmptyDesc')}</p>
       </div>
     ` : '<div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="__user_grid_inner"></div>'}
   `;
@@ -90,11 +90,11 @@ export function renderForecastGrid(allLocationsData, currentFilter, currentSort,
     <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
         <span class="text-xl">🗺️</span>
-        <h3 class="text-base font-extrabold text-slate-900">Zonas Micológicas y Parques de Referencia</h3>
-        <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-slate-300">${officialFiltered.length} zonas</span>
+        <h3 class="text-base font-extrabold text-slate-900">${t('sections.officialZones')}</h3>
+        <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-slate-300">${officialFiltered.length} ${t('sections.zonas')}</span>
       </div>
       <button id="__toggle_official_ref_btn" class="px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 ${showOfficialRef ? 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200' : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100'}">
-        <span>${showOfficialRef ? '👁️ Ocultar Zonas de Referencia' : '👁️ Mostrar Zonas de Referencia'}</span>
+        <span>${showOfficialRef ? t('sections.hideOfficial') : t('sections.showOfficial')}</span>
       </button>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ${showOfficialRef ? '' : 'hidden'}" id="__official_grid_inner"></div>
@@ -111,11 +111,11 @@ export function renderForecastGrid(allLocationsData, currentFilter, currentSort,
       localStorage.setItem('zizak_show_official_ref', JSON.stringify(showOfficialRef));
       if (showOfficialRef) {
         officialGridInner.classList.remove('hidden');
-        toggleBtn.innerHTML = '<span>👁️ Ocultar Zonas de Referencia</span>';
+        toggleBtn.innerHTML = `<span>${t('sections.hideOfficial')}</span>`;
         toggleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
       } else {
         officialGridInner.classList.add('hidden');
-        toggleBtn.innerHTML = '<span>👁️ Mostrar Zonas de Referencia</span>';
+        toggleBtn.innerHTML = `<span>${t('sections.showOfficial')}</span>`;
         toggleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100';
       }
     };

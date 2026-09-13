@@ -215,11 +215,11 @@ body {
 
             <!-- CONTROLES CAPA DE LLUVIA TV (PREDICCIÓN HOY/MAÑANA/PASADO) -->
             <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
-              <span class="font-extrabold text-slate-700 px-1 text-[11px]">☔ Lluvia (TV):</span>
-              <button data-rain-day="-1" class="rain-tab-btn active px-2.5 py-1 rounded-lg font-bold text-[11px] bg-white text-slate-900 shadow-2xs transition">Off</button>
-              <button data-rain-day="0" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Hoy</button>
-              <button data-rain-day="1" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Mañana</button>
-              <button data-rain-day="2" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition">🌧️ Pasado</button>
+              <span class="font-extrabold text-slate-700 px-1 text-[11px]" data-i18n="rain.title">☔ Lluvia (TV):</span>
+              <button data-rain-day="-1" class="rain-tab-btn active px-2.5 py-1 rounded-lg font-bold text-[11px] bg-white text-slate-900 shadow-2xs transition" data-i18n="rain.off">Off</button>
+              <button data-rain-day="0" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition" data-i18n="rain.today">🌧️ Hoy</button>
+              <button data-rain-day="1" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition" data-i18n="rain.tomorrow">🌧️ Mañana</button>
+              <button data-rain-day="2" class="rain-tab-btn px-2.5 py-1 rounded-lg font-bold text-[11px] text-slate-600 hover:text-slate-900 hover:bg-white transition" data-i18n="rain.afterTomorrow">🌧️ Pasado</button>
             </div>
           </div>
         </div>
@@ -230,13 +230,13 @@ body {
           <!-- LEYENDA TV DE ESCALA DE PRECIPITACIÓN -->
           <div id="rain-legend-bar" class="hidden absolute bottom-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-900/90 backdrop-blur-sm text-white rounded-xl text-xs font-bold shadow-lg border border-slate-700">
             <span class="text-emerald-400 font-extrabold flex items-center gap-1" id="rain-legend-title">
-              <span>🌧️ Predicción de Precipitación Acumulada</span>
+              <span data-i18n="rain.legendTitle">🌧️ Predicción de Precipitación Acumulada</span>
             </span>
             <div class="flex flex-wrap items-center gap-2 text-[11px]">
-              <span class="px-2 py-0.5 rounded bg-blue-500/40 text-blue-200 border border-blue-400/50">💧 1-5 mm (Débil)</span>
-              <span class="px-2 py-0.5 rounded bg-cyan-500/60 text-white border border-cyan-300/60">🌧️ 5-15 mm (Moderada)</span>
-              <span class="px-2 py-0.5 rounded bg-emerald-500/80 text-white border border-emerald-300">🟩 15-25 mm (Copiosa)</span>
-              <span class="px-2 py-0.5 rounded bg-purple-600/90 text-white border border-purple-300 font-black">🟪 >25 mm (Abundante)</span>
+              <span class="px-2 py-0.5 rounded bg-blue-500/40 text-blue-200 border border-blue-400/50" data-i18n="rain.legend15">💧 1-5 mm (Débil)</span>
+              <span class="px-2 py-0.5 rounded bg-cyan-500/60 text-white border border-cyan-300/60" data-i18n="rain.legend515">🌧️ 5-15 mm (Moderada)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/80 text-white border border-emerald-300" data-i18n="rain.legend1525">🟩 15-25 mm (Copiosa)</span>
+              <span class="px-2 py-0.5 rounded bg-purple-600/90 text-white border border-purple-300 font-black" data-i18n="rain.legend25">🟪 >25 mm (Abundante)</span>
             </div>
           </div>
         </div>
@@ -357,35 +357,35 @@ body {
           <div class="flex justify-between items-center cursor-pointer select-none" onclick="const el = document.getElementById('calibration-guide-content'); el.classList.toggle('hidden');">
             <div class="flex items-center gap-2">
               <span class="text-base">📖</span>
-              <h3 class="font-bold text-sm text-emerald-950">¿Cómo se calcula la probabilidad y cómo afecta la calibración?</h3>
+              <h3 class="font-bold text-sm text-emerald-950" data-i18n="calibrationGuide.title">¿Cómo se calcula la probabilidad y cómo afecta la calibración?</h3>
             </div>
             <button type="button" class="text-emerald-700 font-bold text-xs hover:underline flex items-center gap-1">
-              <span>Explicación del Modelo</span> ▾
+              <span data-i18n="calibrationGuide.button">Explicación del Modelo</span> ▾
             </button>
           </div>
 
           <div id="calibration-guide-content" class="hidden pt-3 border-t border-emerald-200/60 space-y-3 leading-relaxed">
-            <p>El motor bioclimático de <strong>Zizak Pro</strong> simula la respuesta fisiológica del micelio subterráneo combinando la meteorología observada de las últimas 2 semanas con la predicción a 7 días.</p>
+            <p data-i18n="calibrationGuide.intro">El motor bioclimático de Zizak Pro simula la respuesta fisiológica del micelio subterráneo combinando la meteorología observada de las últimas 2 semanas con la predicción a 7 días.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
-                <span class="font-bold text-emerald-900 block flex items-center gap-1">⏳ 1. Ventanas de Incubación (Lag)</span>
-                <p class="text-slate-600">Las setas no salen el día de la lluvia. El micelio necesita de <strong>7 a 21 días de incubación</strong> tras un frente copioso (>15-25 mm). El pico de fructificación se alcanza entre el día 10 y 16 post-lluvia.</p>
+                <span class="font-bold text-emerald-900 block flex items-center gap-1" data-i18n="calibrationGuide.card1Title">⏳ 1. Ventanas de Incubación (Lag)</span>
+                <p class="text-slate-600" data-i18n="calibrationGuide.card1Desc">Las setas no salen el día de la lluvia. El micelio necesita de 7 a 21 días de incubación tras un frente copioso (>15-25 mm). El pico de fructificación se alcanza entre el día 10 y 16 post-lluvia.</p>
               </div>
 
               <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
-                <span class="font-bold text-amber-900 block flex items-center gap-1">☀️ 2. Filtro Anti-Evaporación (&lt; 5mm)</span>
-                <p class="text-slate-600">Con temperaturas altas (>22°C) o aire seco, lluvias chiri-miri (&lt;5 mm) se evaporan al 100% en la hojarasca sin humedecer el micelio subterráneo, evitando falsos picos de probabilidad.</p>
+                <span class="font-bold text-amber-900 block flex items-center gap-1" data-i18n="calibrationGuide.card2Title">☀️ 2. Filtro Anti-Evaporación (&lt; 5mm)</span>
+                <p class="text-slate-600" data-i18n="calibrationGuide.card2Desc">Con temperaturas altas (>22°C) o aire seco, lluvias chiri-miri (&lt;5 mm) se evaporan al 100% en la hojarasca sin humedecer el micelio subterráneo, evitando falsos picos de probabilidad.</p>
               </div>
 
               <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
-                <span class="font-bold text-red-900 block flex items-center gap-1">🔥 3. Aborto por Ola de Calor Continuado</span>
-                <p class="text-slate-600">Si durante el periodo de incubación surgen <strong>3+ días seguidos de calor sofocante (>26°C) o viento seco</strong>, la fructificación iniciada se deshidrata y el motor penaliza la probabilidad.</p>
+                <span class="font-bold text-red-900 block flex items-center gap-1" data-i18n="calibrationGuide.card3Title">🔥 3. Aborto por Ola de Calor Continuado</span>
+                <p class="text-slate-600" data-i18n="calibrationGuide.card3Desc">Si durante el periodo de incubación surgen 3+ días seguidos de calor sofocante (>26°C) o viento seco, la fructificación iniciada se deshidrata y el motor penaliza la probabilidad.</p>
               </div>
 
               <div class="bg-white p-3 rounded-xl border border-emerald-100 space-y-1">
-                <span class="font-bold text-blue-900 block flex items-center gap-1">⚙️ 4. Impacto de Modificar la Calibración</span>
-                <p class="text-slate-600">
+                <span class="font-bold text-blue-900 block flex items-center gap-1" data-i18n="calibrationGuide.card4Title">⚙️ 4. Impacto de Modificar la Calibración</span>
+                <p class="text-slate-600" data-i18n="calibrationGuide.card4Desc">
                   • <strong>Smax Suelo (mm)</strong>: Aumentarlo exige precipitaciones mayores para saturar el terreno.<br/>
                   • <strong>Temperatura Óptima</strong>: Ajusta el rango térmico ideal para las especies de la zona.<br/>
                   • <strong>Castigo por Calor</strong>: Umbral donde el calor seco empieza a restar probabilidad.
@@ -658,6 +658,48 @@ const es = {
     frost: "Heladas nocturnas recientes perjudican los cuerpos fructíferos",
     habitat_mult: "🌲 Hábitat boscoso óptimo y sustrato favorable",
     zone_bonus: "🗺️ Alta afinidad bioclimática con la masa forestal de la zona (+35%)"
+  },
+  rain: {
+    title: "☔ Lluvia (TV):",
+    off: "Off",
+    today: "🌧️ Hoy",
+    tomorrow: "🌧️ Mañana",
+    afterTomorrow: "🌧️ Pasado",
+    legendTitle: "🌧️ Predicción de Precipitación Acumulada",
+    legend15: "💧 1-5 mm (Débil)",
+    legend515: "🌧️ 5-15 mm (Moderada)",
+    legend1525: "🟩 15-25 mm (Copiosa)",
+    legend25: "🟪 >25 mm (Abundante)"
+  },
+  calibrationGuide: {
+    title: "¿Cómo se calcula la probabilidad y cómo afecta la calibración?",
+    button: "Explicación del Modelo",
+    intro: "El motor bioclimático de Zizak Pro simula la respuesta fisiológica del micelio subterráneo combinando la meteorología observada de las últimas 2 semanas con la predicción a 7 días.",
+    card1Title: "⏳ 1. Ventanas de Incubación (Lag)",
+    card1Desc: "Las setas no salen el día de la lluvia. El micelio necesita de 7 a 21 días de incubación tras un frente copioso (>15-25 mm). El pico de fructificación se alcanza entre el día 10 y 16 post-lluvia.",
+    card2Title: "☀️ 2. Filtro Anti-Evaporación (< 5mm)",
+    card2Desc: "Con temperaturas altas (>22°C) o aire seco, lluvias chiri-miri (<5 mm) se evaporan al 100% en la hojarasca sin humedecer el micelio subterráneo, evitando falsos picos de probabilidad.",
+    card3Title: "🔥 3. Aborto por Ola de Calor Continuado",
+    card3Desc: "Si durante el periodo de incubación surgen 3+ días seguidos de calor sofocante (>26°C) o viento seco, la fructificación iniciada se deshidrata y el motor penaliza la probabilidad.",
+    card4Title: "⚙️ 4. Impacto de Modificar la Calibración",
+    card4Desc: "• Smax Suelo (mm): Aumentarlo exige precipitaciones mayores para saturar el terreno.<br/>• Temperatura Óptima: Ajusta el rango térmico ideal para las especies de la zona.<br/>• Castigo por Calor: Umbral donde el calor seco empieza a restar probabilidad."
+  },
+  sections: {
+    userSaved: "Mis Lugares Guardados",
+    userSavedEmptyTitle: "No tienes parajes personalizados guardados aún.",
+    userSavedEmptyDesc: "Haz clic sobre cualquier punto en el Visor Territorial para guardar tu zona de setas.",
+    officialZones: "Zonas Micológicas y Parques de Referencia",
+    showOfficial: "👁️ Mostrar Zonas de Referencia",
+    hideOfficial: "👁️ Ocultar Zonas de Referencia",
+    parajes: "parajes",
+    zonas: "zonas",
+    goToDetail: "🚀 Ir a detalle",
+    todayChance: "Probabilidad Hoy:",
+    broteIn: "📈 ¡Brote previsto en",
+    broteInDays: "días!",
+    broteHalo: "📈 ¡Brote a la vista!",
+    altitude: "altitud",
+    delete: "🗑️ Eliminar"
   }
 };
 
@@ -670,7 +712,7 @@ const eu = {
   appTagline: "Zizak eta Onddoen Iragarpen Sistema Adimenduna - Iberiar Penintsulako Iparraldea",
   nav: {
     forecast: "Iragarpena & Lekuak",
-    map: "Lurralde Visorea",
+    map: "Lurralde Bisoia",
     guide: "Espezieen Gida",
     journal: "Koadernoa",
     settings: "Kalibrazioa"
@@ -679,15 +721,15 @@ const eu = {
     title: "Gehitu Toki Mikologiko Berria",
     placeholder: "Adib. Irati Oihana, Aralar, Gorbeia, Ultzama, Ordesa...",
     search: "Bilatu Lekua",
-    habitatSummary: "Habitata eta Parametro Mikoselbikoolak",
-    habitatType: "Baso Habitat Mota",
+    habitatSummary: "Habitata eta Parametro Mikoselbikolak",
+    habitatType: "Baso-Habitat Mota",
     canopy: "Basoaren Argitasuna / Dentsitatea",
     age: "Zuhaitzen Adina",
-    soil: "Lurzoruaren Mota (pH / Azidotasuna)",
+    soil: "Lurzoru Mota (pH / Azidotasuna)",
     addBtn: "➕ Gehitu Nire Lekuetara"
   },
   moon: {
-    title: "Uneko Ilargi Fasea",
+    title: "Uneko Ilargi-Fasea",
     next: "Hurrengo Ilargi Betea: "
   },
   parks: {
@@ -702,16 +744,16 @@ const eu = {
     low: "🔴 Txikia",
     sortBy: "Ordenatu honen arabera:",
     name: "Lekuaren izena",
-    chance: "Aukera gehiena"
+    chance: "Aukera handiena"
   },
   loading: "Datu meteorologikoak kargatzen eta eredu bioklimatikoa kalkulatzen...",
   welcome: {
     title: "Ongi etorri Zizak Pro-ra!",
-    text: "Hautatu edo bilatu zure bilketa eremua Nafarroan, Euskadin, Kantauriko Kostaldean edo Pirinioetan iragarpen zehatzak lortzeko MYCOSILVA eredu ekologikoan oinarrituta."
+    text: "Hautatu edo bilatu zure bilketa-eremua Nafarroan, Euskadin, Kantauriko Kostaldean edo Pirinioetan iragarpen zehatzak lortzeko MYCOSILVA eredu ekologikoan oinarrituta."
   },
   forecast7: "7 Egunetarako Aurreikuspen Mikologikoa:",
-  speciesTitle: "Espezie Nagusiak eta Aukerak",
-  score: "Fruktifikazio Puntuazioa",
+  speciesTitle: "Espezie Preferenteak eta Aukerak",
+  score: "Fruktifikazio-Puntuazioa",
   whyBtn: "❓ Zergatik aukera hau?",
   chanceMap: {
     Alta: "Fruktifikazio Handia",
@@ -719,10 +761,10 @@ const eu = {
     Baja: "Fruktifikazio Txikia"
   },
   map: {
-    title: "Iparraldeko Lurralde Visorea",
+    title: "Iparraldeko Lurralde Bisoia",
     subtitle: "Nabigatu Satelite, Topografiko edo Nafarroako Zonalde Maparekin (A-S).",
     opacityTitle: "🗺️ Nafarroako Eremuak (A-S)",
-    opacityDesc: "MYCOSILVA mendi geruza",
+    opacityDesc: "MYCOSILVA mendi-geruza",
     layers: {
       osm: "🗺️ Mapa Politikoa",
       satellite: "🛰️ Satelitea ESRI",
@@ -730,8 +772,8 @@ const eu = {
     }
   },
   guide: {
-    title: "Seten eta Zizaken Fitxa Ilustratuak",
-    subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin eta errezetekin.",
+    title: "Perretxiko eta Zizaken Fitxa Ilustratuak",
+    subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin, konfusioekin eta errezetekin.",
     subtabGuide: "Espezieen Fitxak",
     subtabRecipes: "Sukaldaritza Errezetak",
     searchPh: "Bilatu izen arrunta, zientifikoa, euskaraz edo habitata...",
@@ -755,7 +797,7 @@ const eu = {
     title: "Koaderno Mikologikoa",
     desc: "Gorde zure bildumak GPS koordenatu zehatzekin, pisuarekin eta argazkiekin.",
     newBtn: "📸 Bilduma Berria",
-    formTitle: "Registratu Irteera Berria Mendian",
+    formTitle: "Erregistratu Irteera Berria Mendian",
     date: "Irteera Data",
     location: "Lekuaren Izena / Koordenatuak",
     species: "Bildutako Espezie Nagusia",
@@ -779,7 +821,7 @@ const eu = {
       smaxAcid: "Lur Azidoa (Smax)",
       smaxBasic: "Lur Oinarrizkoa (Smax)",
       smaxDefault: "Lur Ertaina (Smax)",
-      tempTitle: "Oinarrizko Tenperatura (°C)",
+      tempTitle: "Oinarrizko Tenperatura eta Optimoak (°C)",
       tOpt: "Rango Optimoa (°C)",
       tHeatTh: "Bero Handiaren Zigorra (°C)"
     }
@@ -801,17 +843,59 @@ const eu = {
     soil_dry: "Lurzoru lehorra: Euri metaketa falta da (SMI < 0.5)",
     soil_dry_severe: "Lurzoru oso lehorra: Euri ugari behar da mizelioa pizteko",
     pulse_rain: "🌧️ Euri ugari berria abiarazle gisa (duela 7-21 egun)",
-    no_rain_pulse: "Duela gutxi euri frote ugaririk ez da egon (duela 7-21 egun)",
+    no_rain_pulse: "Duela gutxi euri-fronte ugaririk ez da egon (duela 7-21 egun)",
     temp_opt: "🌡️ Tenperatura ertaina optimo biologiko idealerako",
     temp_cold: "Tenperatura falta: Hotz handiak sorrera moteltzen du",
     heat_penalty: "Bero gehiegi: Bero handiak (>26°C) lehortu egiten ditu",
-    heat_interruption: "⚠️ Bero boladak edo haize lehorrak mizelioaren inkubazioa eten du azken eurien ondoren",
+    heat_interruption: "⚠️ Bero-boladak edo haize lehorrak mizelioaren inkubazioa eten du azken eurien ondoren",
     rain_evaporated: "⚠️ Gutxieneko euria (<5mm) beroagatik lurrundu da lurzorura sartu gabe",
     vpd_low: "🌬️ Giro heze babestua (VPD baxua)",
     vpd_high: "Haize lehorra gehiegi: Giro lehorregiak kimuak geldiarazten ditu",
     frost: "Gauetako izozte berriek kalte egiten diote",
-    habitat_mult: "🌲 Baso habitat optimoa eta lurzorua",
+    habitat_mult: "🌲 Baso-habitat optimoa eta lurzorua",
     zone_bonus: "🗺️ Afinitate bioklimatiko handia eremuarekin (+35%)"
+  },
+  rain: {
+    title: "☔ Euria (TV):",
+    off: "Ez",
+    today: "🌧️ Gaur",
+    tomorrow: "🌧️ Bihar",
+    afterTomorrow: "🌧️ Etzi",
+    legendTitle: "🌧️ Pilatutako Prezipitazioaren Iragarpena",
+    legend15: "💧 1-5 mm (Txikia)",
+    legend515: "🌧️ 5-15 mm (Ertaina)",
+    legend1525: "🟩 15-25 mm (Ugaria)",
+    legend25: "🟪 >25 mm (Oso ugaria)"
+  },
+  calibrationGuide: {
+    title: "Nola kalkulatzen da aukera eta nola eragiten du kalibrazioak?",
+    button: "Ereduaren Azalpena",
+    intro: "Zizak Pro-ren eredu bioklimatikoak lurpeko mizelioaren erantzun fisiologikoa simulatzen du, azken 2 asteko meteorologia behatua eta 7 egunetarako iragarpena uztartuz.",
+    card1Title: "⏳ 1. Inkubazio Epeak (Lag)",
+    card1Desc: "Perretxikoak ez dira euria egiten duen egunean bertan ateratzen. Mizelioak 7tik 21 egunera arteko inkubazioa behar du euri-fronte ugariaren ondoren (>15-25 mm). Fruktifikazio-pikoa euria egin eta 10 eta 16 egun artean lortzen da.",
+    card2Title: "☀️ 2. Lurrunketaren Aurkako Iragazkia (< 5mm)",
+    card2Desc: "Tenperatura altuekin (>22°C) edo giro lehorrarekin, zirimiri-euriak (<5 mm) %100ean lurruntzen dira hosto-geruzan lurpeko mizelioa hezetu gabe, probabilitate-gorakada faltsuak saihestuz.",
+    card3Title: "🔥 3. Bero-bolada Jarraituaren Zigorra",
+    card3Desc: "Inkubazio-aldian 3 egun jarraian edo gehiagotan bero handia (>26°C) edo haize lehorra bada, hasitako fruktifikazioa deshidratatu egiten da eta ereduak probabilitatea zigortzen du.",
+    card4Title: "⚙️ 4. Kalibrazioa Aldatzearen Eragina",
+    card4Desc: "• Lurraren Smax (mm): Handitzeak euri gehiago eskatzen du lurra asetzeko.<br/>• Tenperatura Optimoa: Eremuko espezieentzako tarte termiko ideala doitzen du.<br/>• Beroaren Zigorra: Bero lehorrak aukera kentzen hasten den atalasea."
+  },
+  sections: {
+    userSaved: "Gordetako Nire Lekuak",
+    userSavedEmptyTitle: "Ez daukazu pertsonalizatutako lekugunerik gordeta oraindik.",
+    userSavedEmptyDesc: "Egin klik Lurralde Bisoiaren edozein puntutan zure perretxiko-eremua gordetzeko.",
+    officialZones: "Erreferentziazko Parke eta Eremu Mikologikoak",
+    showOfficial: "👁️ Erakutsi Erreferentziazko Eremuak",
+    hideOfficial: "👁️ Ezkutatu Erreferentziazko Eremuak",
+    parajes: "paraje",
+    zonas: "eremu",
+    goToDetail: "🚀 Xehetasunera joan",
+    todayChance: "Gaurko Aukera:",
+    broteIn: "📈 ¡Kimua bidean",
+    broteInDays: "egunetan!",
+    broteHalo: "📈 ¡Kimua ikusgai!",
+    altitude: "garaiera",
+    delete: "🗑️ Ezabatu"
   }
 };
 
@@ -1891,6 +1975,8 @@ function deleteJournalEntry(id) {
 
 
 /* --- js/ui/mapController.js --- */
+
+
 let map = null;
 let mapMarkersGroup = null;
 let mapRainLayerGroup = null;
@@ -2133,9 +2219,9 @@ function updateMapMarkers(forecastLocations) {
     const marker = L.marker([loc.lat, loc.lon], { icon: customIcon });
 
     // Tooltip al pasar el ratón (hover)
-    let hoverText = isUserSaved ? `⭐ ${loc.name}: ${todayF.score} (${todayF.chance})` : `${loc.name}: ${todayF.score}`;
+    let hoverText = isUserSaved ? `⭐ ${loc.name}: ${todayF.score} (${t(`chanceMap.${todayF.chance}`)})` : `${loc.name}: ${todayF.score}`;
     if (isImproving) {
-      hoverText += ` 📈 ¡Brote a la vista! (${bestFutureDay.score} en ${bestFutureDay.dayOffset}d)`;
+      hoverText += ` ${t('sections.broteIn')} ${bestFutureDay.dayOffset}${t('sections.broteInDays')}`;
     }
 
     marker.bindTooltip(hoverText, {
@@ -2148,10 +2234,10 @@ function updateMapMarkers(forecastLocations) {
     const trendBadgeHtml = isImproving ? `
       <div class="bg-gradient-to-r from-blue-50 to-emerald-50 p-2 rounded-xl border border-blue-200 text-[11px] text-blue-950 space-y-0.5 shadow-2xs">
         <div class="font-extrabold flex items-center gap-1">
-          <span>📈 ¡Brote previsto en ${bestFutureDay.dayOffset} días!</span>
+          <span>${t('sections.broteIn')} ${bestFutureDay.dayOffset} ${t('sections.broteInDays')}</span>
         </div>
         <p class="text-[10px] font-semibold text-slate-700 leading-tight">
-          Subirá a <span class="font-black text-emerald-800">${bestFutureDay.score}</span> (${bestFutureDay.chance}) por lluvia o choque térmico.
+          Subirá a <span class="font-black text-emerald-800">${bestFutureDay.score}</span> (${t(`chanceMap.${bestFutureDay.chance}`)})
         </p>
       </div>
     ` : '';
@@ -2159,15 +2245,15 @@ function updateMapMarkers(forecastLocations) {
     marker.bindPopup(`
       <div class="p-2.5 text-xs space-y-1.5 max-w-[230px]">
         <h4 class="font-bold text-sm text-emerald-900 leading-tight">${isUserSaved ? '⭐ ' : ''}${loc.name}</h4>
-        <p class="text-slate-600 text-[11px] font-medium">${Math.round(loc.altitude || 600)}m altitud</p>
-        <p class="text-slate-800 text-[11px] font-bold">Probabilidad Hoy: <span class="text-emerald-700">${todayF.score}</span></p>
+        <p class="text-slate-600 text-[11px] font-medium">${Math.round(loc.altitude || 600)}m ${t('sections.altitude')}</p>
+        <p class="text-slate-800 text-[11px] font-bold">${t('sections.todayChance')} <span class="text-emerald-700">${todayF.score}</span></p>
         <div>
-          <span class="inline-block px-2 py-0.5 font-bold rounded-full text-[10px] ${todayF.chance === 'Alta' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : (todayF.chance === 'Media' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-red-100 text-red-900 border border-red-300')}">${todayF.chance === 'Alta' ? '🟢 Brote Activo' : (todayF.chance === 'Media' ? '🟡 Fructificación Media' : '🔴 Baja Hoy')}</span>
+          <span class="inline-block px-2 py-0.5 font-bold rounded-full text-[10px] ${todayF.chance === 'Alta' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : (todayF.chance === 'Media' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-red-100 text-red-900 border border-red-300')}">${t(`chanceMap.${todayF.chance}`)}</span>
         </div>
         ${trendBadgeHtml}
         <div class="pt-1">
           <button class="btn-go-to-loc w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-1.5 px-2 rounded-lg transition text-[11px] flex items-center justify-center gap-1 shadow-sm">
-            🚀 <span>Ir a detalle</span>
+            ${t('sections.goToDetail')}
           </button>
         </div>
       </div>
@@ -2354,14 +2440,14 @@ function renderForecastGrid(allLocationsData, currentFilter, currentSort, onDele
     <div class="flex justify-between items-center pb-2 border-b border-emerald-200">
       <div class="flex items-center gap-2">
         <span class="text-xl">⭐</span>
-        <h3 class="text-base font-extrabold text-slate-900">Mis Lugares Guardados</h3>
-        <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">${userFiltered.length} parajes</span>
+        <h3 class="text-base font-extrabold text-slate-900">${t('sections.userSaved')}</h3>
+        <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">${userFiltered.length} ${t('sections.parajes')}</span>
       </div>
     </div>
     ${userFiltered.length === 0 ? `
       <div class="bg-slate-50/80 p-5 rounded-2xl border border-dashed border-slate-300 text-center">
-        <p class="text-xs font-bold text-slate-700">No tienes parajes personalizados guardados aún.</p>
-        <p class="text-[11px] text-slate-500 mt-1">Haz clic sobre cualquier punto en el <strong>Visor Territorial</strong> para guardar tu zona de setas.</p>
+        <p class="text-xs font-bold text-slate-700">${t('sections.userSavedEmptyTitle')}</p>
+        <p class="text-[11px] text-slate-500 mt-1">${t('sections.userSavedEmptyDesc')}</p>
       </div>
     ` : '<div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="__user_grid_inner"></div>'}
   `;
@@ -2379,11 +2465,11 @@ function renderForecastGrid(allLocationsData, currentFilter, currentSort, onDele
     <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
         <span class="text-xl">🗺️</span>
-        <h3 class="text-base font-extrabold text-slate-900">Zonas Micológicas y Parques de Referencia</h3>
-        <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-slate-300">${officialFiltered.length} zonas</span>
+        <h3 class="text-base font-extrabold text-slate-900">${t('sections.officialZones')}</h3>
+        <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-slate-300">${officialFiltered.length} ${t('sections.zonas')}</span>
       </div>
       <button id="__toggle_official_ref_btn" class="px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 ${showOfficialRef ? 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200' : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100'}">
-        <span>${showOfficialRef ? '👁️ Ocultar Zonas de Referencia' : '👁️ Mostrar Zonas de Referencia'}</span>
+        <span>${showOfficialRef ? t('sections.hideOfficial') : t('sections.showOfficial')}</span>
       </button>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ${showOfficialRef ? '' : 'hidden'}" id="__official_grid_inner"></div>
@@ -2400,11 +2486,11 @@ function renderForecastGrid(allLocationsData, currentFilter, currentSort, onDele
       localStorage.setItem('zizak_show_official_ref', JSON.stringify(showOfficialRef));
       if (showOfficialRef) {
         officialGridInner.classList.remove('hidden');
-        toggleBtn.innerHTML = '<span>👁️ Ocultar Zonas de Referencia</span>';
+        toggleBtn.innerHTML = `<span>${t('sections.hideOfficial')}</span>`;
         toggleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
       } else {
         officialGridInner.classList.add('hidden');
-        toggleBtn.innerHTML = '<span>👁️ Mostrar Zonas de Referencia</span>';
+        toggleBtn.innerHTML = `<span>${t('sections.showOfficial')}</span>`;
         toggleBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-extrabold border transition shadow-2xs flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100';
       }
     };
@@ -3167,6 +3253,7 @@ function setupLanguageSwitcher() {
       refreshGrid();
       renderGuideAndRecipes();
       renderJournalUI();
+      updateMapMarkers(allForecastData);
     };
   }
 }

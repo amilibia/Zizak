@@ -217,6 +217,7 @@ function setupLanguageSwitcher() {
       refreshGrid();
       renderGuideAndRecipes();
       renderJournalUI();
+      updateMapMarkers(allForecastData);
     };
   }
 }

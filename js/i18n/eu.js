@@ -5,7 +5,7 @@ export const eu = {
   appTagline: "Zizak eta Onddoen Iragarpen Sistema Adimenduna - Iberiar Penintsulako Iparraldea",
   nav: {
     forecast: "Iragarpena & Lekuak",
-    map: "Lurralde Visorea",
+    map: "Lurralde Bisoia",
     guide: "Espezieen Gida",
     journal: "Koadernoa",
     settings: "Kalibrazioa"
@@ -14,15 +14,15 @@ export const eu = {
     title: "Gehitu Toki Mikologiko Berria",
     placeholder: "Adib. Irati Oihana, Aralar, Gorbeia, Ultzama, Ordesa...",
     search: "Bilatu Lekua",
-    habitatSummary: "Habitata eta Parametro Mikoselbikoolak",
-    habitatType: "Baso Habitat Mota",
+    habitatSummary: "Habitata eta Parametro Mikoselbikolak",
+    habitatType: "Baso-Habitat Mota",
     canopy: "Basoaren Argitasuna / Dentsitatea",
     age: "Zuhaitzen Adina",
-    soil: "Lurzoruaren Mota (pH / Azidotasuna)",
+    soil: "Lurzoru Mota (pH / Azidotasuna)",
     addBtn: "➕ Gehitu Nire Lekuetara"
   },
   moon: {
-    title: "Uneko Ilargi Fasea",
+    title: "Uneko Ilargi-Fasea",
     next: "Hurrengo Ilargi Betea: "
   },
   parks: {
@@ -37,16 +37,16 @@ export const eu = {
     low: "🔴 Txikia",
     sortBy: "Ordenatu honen arabera:",
     name: "Lekuaren izena",
-    chance: "Aukera gehiena"
+    chance: "Aukera handiena"
   },
   loading: "Datu meteorologikoak kargatzen eta eredu bioklimatikoa kalkulatzen...",
   welcome: {
     title: "Ongi etorri Zizak Pro-ra!",
-    text: "Hautatu edo bilatu zure bilketa eremua Nafarroan, Euskadin, Kantauriko Kostaldean edo Pirinioetan iragarpen zehatzak lortzeko MYCOSILVA eredu ekologikoan oinarrituta."
+    text: "Hautatu edo bilatu zure bilketa-eremua Nafarroan, Euskadin, Kantauriko Kostaldean edo Pirinioetan iragarpen zehatzak lortzeko MYCOSILVA eredu ekologikoan oinarrituta."
   },
   forecast7: "7 Egunetarako Aurreikuspen Mikologikoa:",
-  speciesTitle: "Espezie Nagusiak eta Aukerak",
-  score: "Fruktifikazio Puntuazioa",
+  speciesTitle: "Espezie Preferenteak eta Aukerak",
+  score: "Fruktifikazio-Puntuazioa",
   whyBtn: "❓ Zergatik aukera hau?",
   chanceMap: {
     Alta: "Fruktifikazio Handia",
@@ -54,10 +54,10 @@ export const eu = {
     Baja: "Fruktifikazio Txikia"
   },
   map: {
-    title: "Iparraldeko Lurralde Visorea",
+    title: "Iparraldeko Lurralde Bisoia",
     subtitle: "Nabigatu Satelite, Topografiko edo Nafarroako Zonalde Maparekin (A-S).",
     opacityTitle: "🗺️ Nafarroako Eremuak (A-S)",
-    opacityDesc: "MYCOSILVA mendi geruza",
+    opacityDesc: "MYCOSILVA mendi-geruza",
     layers: {
       osm: "🗺️ Mapa Politikoa",
       satellite: "🛰️ Satelitea ESRI",
@@ -65,8 +65,8 @@ export const eu = {
     }
   },
   guide: {
-    title: "Seten eta Zizaken Fitxa Ilustratuak",
-    subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin eta errezetekin.",
+    title: "Perretxiko eta Zizaken Fitxa Ilustratuak",
+    subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin, konfusioekin eta errezetekin.",
     subtabGuide: "Espezieen Fitxak",
     subtabRecipes: "Sukaldaritza Errezetak",
     searchPh: "Bilatu izen arrunta, zientifikoa, euskaraz edo habitata...",
@@ -90,7 +90,7 @@ export const eu = {
     title: "Koaderno Mikologikoa",
     desc: "Gorde zure bildumak GPS koordenatu zehatzekin, pisuarekin eta argazkiekin.",
     newBtn: "📸 Bilduma Berria",
-    formTitle: "Registratu Irteera Berria Mendian",
+    formTitle: "Erregistratu Irteera Berria Mendian",
     date: "Irteera Data",
     location: "Lekuaren Izena / Koordenatuak",
     species: "Bildutako Espezie Nagusia",
@@ -114,7 +114,7 @@ export const eu = {
       smaxAcid: "Lur Azidoa (Smax)",
       smaxBasic: "Lur Oinarrizkoa (Smax)",
       smaxDefault: "Lur Ertaina (Smax)",
-      tempTitle: "Oinarrizko Tenperatura (°C)",
+      tempTitle: "Oinarrizko Tenperatura eta Optimoak (°C)",
       tOpt: "Rango Optimoa (°C)",
       tHeatTh: "Bero Handiaren Zigorra (°C)"
     }
@@ -136,16 +136,58 @@ export const eu = {
     soil_dry: "Lurzoru lehorra: Euri metaketa falta da (SMI < 0.5)",
     soil_dry_severe: "Lurzoru oso lehorra: Euri ugari behar da mizelioa pizteko",
     pulse_rain: "🌧️ Euri ugari berria abiarazle gisa (duela 7-21 egun)",
-    no_rain_pulse: "Duela gutxi euri frote ugaririk ez da egon (duela 7-21 egun)",
+    no_rain_pulse: "Duela gutxi euri-fronte ugaririk ez da egon (duela 7-21 egun)",
     temp_opt: "🌡️ Tenperatura ertaina optimo biologiko idealerako",
     temp_cold: "Tenperatura falta: Hotz handiak sorrera moteltzen du",
     heat_penalty: "Bero gehiegi: Bero handiak (>26°C) lehortu egiten ditu",
-    heat_interruption: "⚠️ Bero boladak edo haize lehorrak mizelioaren inkubazioa eten du azken eurien ondoren",
+    heat_interruption: "⚠️ Bero-boladak edo haize lehorrak mizelioaren inkubazioa eten du azken eurien ondoren",
     rain_evaporated: "⚠️ Gutxieneko euria (<5mm) beroagatik lurrundu da lurzorura sartu gabe",
     vpd_low: "🌬️ Giro heze babestua (VPD baxua)",
     vpd_high: "Haize lehorra gehiegi: Giro lehorregiak kimuak geldiarazten ditu",
     frost: "Gauetako izozte berriek kalte egiten diote",
-    habitat_mult: "🌲 Baso habitat optimoa eta lurzorua",
+    habitat_mult: "🌲 Baso-habitat optimoa eta lurzorua",
     zone_bonus: "🗺️ Afinitate bioklimatiko handia eremuarekin (+35%)"
+  },
+  rain: {
+    title: "☔ Euria (TV):",
+    off: "Ez",
+    today: "🌧️ Gaur",
+    tomorrow: "🌧️ Bihar",
+    afterTomorrow: "🌧️ Etzi",
+    legendTitle: "🌧️ Pilatutako Prezipitazioaren Iragarpena",
+    legend15: "💧 1-5 mm (Txikia)",
+    legend515: "🌧️ 5-15 mm (Ertaina)",
+    legend1525: "🟩 15-25 mm (Ugaria)",
+    legend25: "🟪 >25 mm (Oso ugaria)"
+  },
+  calibrationGuide: {
+    title: "Nola kalkulatzen da aukera eta nola eragiten du kalibrazioak?",
+    button: "Ereduaren Azalpena",
+    intro: "Zizak Pro-ren eredu bioklimatikoak lurpeko mizelioaren erantzun fisiologikoa simulatzen du, azken 2 asteko meteorologia behatua eta 7 egunetarako iragarpena uztartuz.",
+    card1Title: "⏳ 1. Inkubazio Epeak (Lag)",
+    card1Desc: "Perretxikoak ez dira euria egiten duen egunean bertan ateratzen. Mizelioak 7tik 21 egunera arteko inkubazioa behar du euri-fronte ugariaren ondoren (>15-25 mm). Fruktifikazio-pikoa euria egin eta 10 eta 16 egun artean lortzen da.",
+    card2Title: "☀️ 2. Lurrunketaren Aurkako Iragazkia (< 5mm)",
+    card2Desc: "Tenperatura altuekin (>22°C) edo giro lehorrarekin, zirimiri-euriak (<5 mm) %100ean lurruntzen dira hosto-geruzan lurpeko mizelioa hezetu gabe, probabilitate-gorakada faltsuak saihestuz.",
+    card3Title: "🔥 3. Bero-bolada Jarraituaren Zigorra",
+    card3Desc: "Inkubazio-aldian 3 egun jarraian edo gehiagotan bero handia (>26°C) edo haize lehorra bada, hasitako fruktifikazioa deshidratatu egiten da eta ereduak probabilitatea zigortzen du.",
+    card4Title: "⚙️ 4. Kalibrazioa Aldatzearen Eragina",
+    card4Desc: "• Lurraren Smax (mm): Handitzeak euri gehiago eskatzen du lurra asetzeko.<br/>• Tenperatura Optimoa: Eremuko espezieentzako tarte termiko ideala doitzen du.<br/>• Beroaren Zigorra: Bero lehorrak aukera kentzen hasten den atalasea."
+  },
+  sections: {
+    userSaved: "Gordetako Nire Lekuak",
+    userSavedEmptyTitle: "Ez daukazu pertsonalizatutako lekugunerik gordeta oraindik.",
+    userSavedEmptyDesc: "Egin klik Lurralde Bisoiaren edozein puntutan zure perretxiko-eremua gordetzeko.",
+    officialZones: "Erreferentziazko Parke eta Eremu Mikologikoak",
+    showOfficial: "👁️ Erakutsi Erreferentziazko Eremuak",
+    hideOfficial: "👁️ Ezkutatu Erreferentziazko Eremuak",
+    parajes: "paraje",
+    zonas: "eremu",
+    goToDetail: "🚀 Xehetasunera joan",
+    todayChance: "Gaurko Aukera:",
+    broteIn: "📈 ¡Kimua bidean",
+    broteInDays: "egunetan!",
+    broteHalo: "📈 ¡Kimua ikusgai!",
+    altitude: "garaiera",
+    delete: "🗑️ Ezabatu"
   }
 };
