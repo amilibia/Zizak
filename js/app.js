@@ -5,7 +5,7 @@ import { DEFAULT_LOCATIONS } from './data/defaultLocations.js';
 import { fetchAltitude, fetchWeather, processDailyData } from './models/weatherApi.js';
 import { computeBaseProbabilities, computeSpeciesForLocation } from './models/forecastEngine.js';
 import { initJournalDB } from './models/journalDb.js';
-import { initMap, updateMapMarkers, focusOnLocation } from './ui/mapController.js';
+import { initMap, updateMapMarkers, focusOnLocation, resizeMap } from './ui/mapController.js';
 import { renderForecastGrid } from './ui/forecastUI.js';
 import { renderGuideAndRecipes } from './ui/speciesUI.js';
 import { renderJournalUI, setupJournalForm, exportFullBackupJSON, importFullBackupJSON } from './ui/journalUI.js';
@@ -123,9 +123,11 @@ function switchTab(targetId) {
   if (activeSec) activeSec.classList.add('active');
 
   if (targetId === 'map') {
+    initMap(handleNavigateFromMap);
+    resizeMap();
     setTimeout(() => {
-      initMap(handleNavigateFromMap);
-    }, 100);
+      resizeMap();
+    }, 150);
   } else if (targetId === 'guide') {
     renderGuideAndRecipes();
   } else if (targetId === 'journal') {

@@ -413,11 +413,11 @@ body {
               <h4 class="font-bold text-sm text-slate-800" data-i18n="settings.general.tempTitle">Temperatura (°C)</h4>
               <div class="flex gap-2">
                 <div class="flex-1">
-                  <label class="text-xs text-slate-600 font-medium">Óptimo Mín (°C)</label>
+                  <label class="text-xs text-slate-600 font-medium" data-i18n="settings.general.tOptMin">Óptimo Mín (°C)</label>
                   <input type="number" id="cfg-topt-min" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
                 </div>
                 <div class="flex-1">
-                  <label class="text-xs text-slate-600 font-medium">Óptimo Máx (°C)</label>
+                  <label class="text-xs text-slate-600 font-medium" data-i18n="settings.general.tOptMax">Óptimo Máx (°C)</label>
                   <input type="number" id="cfg-topt-max" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold" />
                 </div>
               </div>
@@ -569,6 +569,8 @@ const es = {
     subtitle: "Navega con mapa Satelital, Topográfico o mapa Zonal A-S (Navarra, Euskadi, Pirineos).",
     opacityTitle: "🗺️ Capa Zonas Navarra (A-S)",
     opacityDesc: "Capa micoselvícola MYCOSILVA",
+    gridVisible: "🚦 Malla Semáforo: Visible",
+    gridHidden: "🚦 Malla Semáforo: Oculta",
     layers: {
       osm: "🗺️ Mapa Político",
       satellite: "🛰️ Satélite ESRI",
@@ -627,6 +629,8 @@ const es = {
       smaxDefault: "Suelo Medio (Smax)",
       tempTitle: "Temperatura Base y Óptimos (°C)",
       tOpt: "Rango Óptimo (°C)",
+      tOptMin: "Óptimo Mín (°C)",
+      tOptMax: "Óptimo Máx (°C)",
       tHeatTh: "Castigo por Calor Excesivo (°C)"
     }
   },
@@ -712,7 +716,7 @@ const eu = {
   appTagline: "Zizak eta Onddoen Iragarpen Sistema Adimenduna - Iberiar Penintsulako Iparraldea",
   nav: {
     forecast: "Iragarpena & Lekuak",
-    map: "Lurralde Bisoia",
+    map: "Lurralde mapa",
     guide: "Espezieen Gida",
     journal: "Koadernoa",
     settings: "Kalibrazioa"
@@ -761,10 +765,12 @@ const eu = {
     Baja: "Fruktifikazio Txikia"
   },
   map: {
-    title: "Iparraldeko Lurralde Bisoia",
+    title: "Iparraldeko Lurralde Mapa",
     subtitle: "Nabigatu Satelite, Topografiko edo Nafarroako Zonalde Maparekin (A-S).",
     opacityTitle: "🗺️ Nafarroako Eremuak (A-S)",
     opacityDesc: "MYCOSILVA mendi-geruza",
+    gridVisible: "🚦 Semaforo sarea: Ikusgarria",
+    gridHidden: "🚦 Semaforo sarea: Ezkutua",
     layers: {
       osm: "🗺️ Mapa Politikoa",
       satellite: "🛰️ Satelitea ESRI",
@@ -772,7 +778,7 @@ const eu = {
     }
   },
   guide: {
-    title: "Perretxiko eta Zizaken Fitxa Ilustratuak",
+    title: "Perretxiko eta zizien fitxak",
     subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin, konfusioekin eta errezetekin.",
     subtabGuide: "Espezieen Fitxak",
     subtabRecipes: "Sukaldaritza Errezetak",
@@ -823,6 +829,8 @@ const eu = {
       smaxDefault: "Lur Ertaina (Smax)",
       tempTitle: "Oinarrizko Tenperatura eta Optimoak (°C)",
       tOpt: "Rango Optimoa (°C)",
+      tOptMin: "Gutxieneko Optimoa (°C)",
+      tOptMax: "Gehienezko Optimoa (°C)",
       tHeatTh: "Bero Handiaren Zigorra (°C)"
     }
   },
@@ -2000,11 +2008,17 @@ function initMap(onNavigateToLocationCallback) {
   // Capas de Mapa Base (Satélite ESRI y Topográfico)
   const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 18,
-    attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP'
+    keepBuffer: 6,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, UPR-EGP'
   });
 
   const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
+    keepBuffer: 6,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
     attribution: 'Map data: © OpenStreetMap, SRTM | Map style: © OpenTopoMap'
   });
 
@@ -2017,6 +2031,11 @@ function initMap(onNavigateToLocationCallback) {
 
   L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
+  // Auto-resize para evitar sombras o zonas grises al cambiar tamaño de pantalla
+  window.addEventListener('resize', () => {
+    if (map) map.invalidateSize();
+  });
+
   // Botón de alternancia de Malla Semáforo (ON / OFF)
   const toggleBtn = document.getElementById('toggle-grid-btn');
   if (toggleBtn) {
@@ -2024,12 +2043,12 @@ function initMap(onNavigateToLocationCallback) {
       gridVisible = !gridVisible;
       if (gridVisible) {
         map.addLayer(mapMarkersGroup);
-        toggleBtn.innerHTML = '🚦 <span>Malla Semáforo: Visible</span>';
+        toggleBtn.innerHTML = `<span>${t('map.gridVisible')}</span>`;
         toggleBtn.classList.remove('bg-slate-100', 'text-slate-700', 'border-slate-300');
         toggleBtn.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
       } else {
         map.removeLayer(mapMarkersGroup);
-        toggleBtn.innerHTML = '🚦 <span>Malla Semáforo: Oculta</span>';
+        toggleBtn.innerHTML = `<span>${t('map.gridHidden')}</span>`;
         toggleBtn.classList.remove('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
         toggleBtn.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-300');
       }
@@ -2361,6 +2380,7 @@ function updateRainLayer(locations, dayIndex) {
 
 function focusOnLocation(lat, lon, zoom = 12.5) {
   if (!map) return;
+  map.invalidateSize();
   map.setView([lat, lon], zoom, { animate: true });
   if (mapMarkersGroup) {
     mapMarkersGroup.eachLayer(layer => {
@@ -2368,6 +2388,12 @@ function focusOnLocation(lat, lon, zoom = 12.5) {
         layer.openPopup();
       }
     });
+  }
+}
+
+function resizeMap() {
+  if (map) {
+    map.invalidateSize();
   }
 }
 
@@ -3159,9 +3185,11 @@ function switchTab(targetId) {
   if (activeSec) activeSec.classList.add('active');
 
   if (targetId === 'map') {
+    initMap(handleNavigateFromMap);
+    resizeMap();
     setTimeout(() => {
-      initMap(handleNavigateFromMap);
-    }, 100);
+      resizeMap();
+    }, 150);
   } else if (targetId === 'guide') {
     renderGuideAndRecipes();
   } else if (targetId === 'journal') {

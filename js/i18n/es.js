@@ -58,6 +58,8 @@ export const es = {
     subtitle: "Navega con mapa Satelital, Topográfico o mapa Zonal A-S (Navarra, Euskadi, Pirineos).",
     opacityTitle: "🗺️ Capa Zonas Navarra (A-S)",
     opacityDesc: "Capa micoselvícola MYCOSILVA",
+    gridVisible: "🚦 Malla Semáforo: Visible",
+    gridHidden: "🚦 Malla Semáforo: Oculta",
     layers: {
       osm: "🗺️ Mapa Político",
       satellite: "🛰️ Satélite ESRI",
@@ -116,6 +118,8 @@ export const es = {
       smaxDefault: "Suelo Medio (Smax)",
       tempTitle: "Temperatura Base y Óptimos (°C)",
       tOpt: "Rango Óptimo (°C)",
+      tOptMin: "Óptimo Mín (°C)",
+      tOptMax: "Óptimo Máx (°C)",
       tHeatTh: "Castigo por Calor Excesivo (°C)"
     }
   },

@@ -5,7 +5,7 @@ export const eu = {
   appTagline: "Zizak eta Onddoen Iragarpen Sistema Adimenduna - Iberiar Penintsulako Iparraldea",
   nav: {
     forecast: "Iragarpena & Lekuak",
-    map: "Lurralde Bisoia",
+    map: "Lurralde mapa",
     guide: "Espezieen Gida",
     journal: "Koadernoa",
     settings: "Kalibrazioa"
@@ -54,10 +54,12 @@ export const eu = {
     Baja: "Fruktifikazio Txikia"
   },
   map: {
-    title: "Iparraldeko Lurralde Bisoia",
+    title: "Iparraldeko Lurralde Mapa",
     subtitle: "Nabigatu Satelite, Topografiko edo Nafarroako Zonalde Maparekin (A-S).",
     opacityTitle: "🗺️ Nafarroako Eremuak (A-S)",
     opacityDesc: "MYCOSILVA mendi-geruza",
+    gridVisible: "🚦 Semaforo sarea: Ikusgarria",
+    gridHidden: "🚦 Semaforo sarea: Ezkutua",
     layers: {
       osm: "🗺️ Mapa Politikoa",
       satellite: "🛰️ Satelitea ESRI",
@@ -65,7 +67,7 @@ export const eu = {
     }
   },
   guide: {
-    title: "Perretxiko eta Zizaken Fitxa Ilustratuak",
+    title: "Perretxiko eta zizien fitxak",
     subtitle: "Katalogo osoa hilabetez hilabeteko fenologiarekin, habitatarekin, konfusioekin eta errezetekin.",
     subtabGuide: "Espezieen Fitxak",
     subtabRecipes: "Sukaldaritza Errezetak",
@@ -116,6 +118,8 @@ export const eu = {
       smaxDefault: "Lur Ertaina (Smax)",
       tempTitle: "Oinarrizko Tenperatura eta Optimoak (°C)",
       tOpt: "Rango Optimoa (°C)",
+      tOptMin: "Gutxieneko Optimoa (°C)",
+      tOptMax: "Gehienezko Optimoa (°C)",
       tHeatTh: "Bero Handiaren Zigorra (°C)"
     }
   },

@@ -23,11 +23,17 @@ export function initMap(onNavigateToLocationCallback) {
   // Capas de Mapa Base (Satélite ESRI y Topográfico)
   const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 18,
-    attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP'
+    keepBuffer: 6,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, UPR-EGP'
   });
 
   const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
+    keepBuffer: 6,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
     attribution: 'Map data: © OpenStreetMap, SRTM | Map style: © OpenTopoMap'
   });
 
@@ -40,6 +46,11 @@ export function initMap(onNavigateToLocationCallback) {
 
   L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
+  // Auto-resize para evitar sombras o zonas grises al cambiar tamaño de pantalla
+  window.addEventListener('resize', () => {
+    if (map) map.invalidateSize();
+  });
+
   // Botón de alternancia de Malla Semáforo (ON / OFF)
   const toggleBtn = document.getElementById('toggle-grid-btn');
   if (toggleBtn) {
@@ -47,12 +58,12 @@ export function initMap(onNavigateToLocationCallback) {
       gridVisible = !gridVisible;
       if (gridVisible) {
         map.addLayer(mapMarkersGroup);
-        toggleBtn.innerHTML = '🚦 <span>Malla Semáforo: Visible</span>';
+        toggleBtn.innerHTML = `<span>${t('map.gridVisible')}</span>`;
         toggleBtn.classList.remove('bg-slate-100', 'text-slate-700', 'border-slate-300');
         toggleBtn.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
       } else {
         map.removeLayer(mapMarkersGroup);
-        toggleBtn.innerHTML = '🚦 <span>Malla Semáforo: Oculta</span>';
+        toggleBtn.innerHTML = `<span>${t('map.gridHidden')}</span>`;
         toggleBtn.classList.remove('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
         toggleBtn.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-300');
       }
@@ -384,6 +395,7 @@ function updateRainLayer(locations, dayIndex) {
 
 export function focusOnLocation(lat, lon, zoom = 12.5) {
   if (!map) return;
+  map.invalidateSize();
   map.setView([lat, lon], zoom, { animate: true });
   if (mapMarkersGroup) {
     mapMarkersGroup.eachLayer(layer => {
@@ -391,5 +403,11 @@ export function focusOnLocation(lat, lon, zoom = 12.5) {
         layer.openPopup();
       }
     });
+  }
+}
+
+export function resizeMap() {
+  if (map) {
+    map.invalidateSize();
   }
 }
